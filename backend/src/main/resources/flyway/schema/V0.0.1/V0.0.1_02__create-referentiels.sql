@@ -1,0 +1,12 @@
+CREATE TABLE pays (
+    code        CHAR(2) PRIMARY KEY,
+    nom         VARCHAR(100) NOT NULL,
+    drapeau_url VARCHAR(500)
+);
+
+CREATE SEQUENCE IF NOT EXISTS genre_id_seq START 1 INCREMENT 50;
+
+CREATE TABLE genre (
+    id  BIGINT PRIMARY KEY,
+    nom VARCHAR(80) NOT NULL UNIQUE
+);
