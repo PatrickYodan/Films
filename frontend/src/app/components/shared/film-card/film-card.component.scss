@@ -1,0 +1,129 @@
+.carte {
+	display: block;
+	color: inherit;
+	text-decoration: none;
+	outline: none;
+}
+
+.affiche {
+	position: relative;
+	aspect-ratio: 2 / 3;
+	overflow: hidden;
+	border-radius: var(--rayon);
+	border: 1px solid var(--bordure-douce);
+	background: linear-gradient(160deg, var(--surface-2), var(--accent-fonce));
+	transition:
+		border-color var(--transition),
+		transform 0.3s var(--courbe);
+
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		opacity: 0;
+		transition:
+			opacity 0.4s ease,
+			transform 0.5s var(--courbe);
+
+		&.chargee {
+			opacity: 1;
+		}
+	}
+
+	// Voile sombre qui apparaît au survol
+	&::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(0deg, rgb(18 16 14 / 70%), transparent 55%);
+		opacity: 0;
+		transition: opacity var(--transition);
+	}
+}
+
+.affiche-vide {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	padding: 14px;
+	color: var(--texte-2);
+	font-family: var(--police-titre);
+	font-weight: 700;
+}
+
+.badges {
+	position: absolute;
+	top: 8px;
+	left: 8px;
+	z-index: 1;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+
+.lecture {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	z-index: 1;
+	display: grid;
+	place-items: center;
+	width: 48px;
+	height: 48px;
+	padding-left: 3px;
+	border-radius: 50%;
+	background: var(--accent);
+	color: var(--fond);
+	opacity: 0;
+	transform: translate(-50%, -50%) scale(0.8);
+	transition:
+		opacity var(--transition),
+		transform 0.25s var(--courbe);
+}
+
+.carte:hover,
+.carte:focus-visible {
+	.affiche {
+		border-color: var(--bordure);
+		transform: translateY(-3px);
+
+		&::after {
+			opacity: 1;
+		}
+	}
+
+	img {
+		transform: scale(1.04);
+	}
+
+	.lecture {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1);
+	}
+
+	.titre {
+		color: var(--accent-clair);
+	}
+}
+
+.carte:focus-visible .affiche {
+	outline: 2px solid var(--accent);
+	outline-offset: 3px;
+}
+
+.titre {
+	margin-top: 10px;
+	overflow: hidden;
+	font-weight: 600;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	transition: color var(--transition);
+}
+
+.meta {
+	margin-top: 2px;
+	color: var(--texte-3);
+	font-size: 0.84rem;
+}

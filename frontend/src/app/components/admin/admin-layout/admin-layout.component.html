@@ -1,0 +1,20 @@
+<div class="conteneur admin">
+	<aside class="barre" aria-label="Menu d'administration">
+		<div class="barre-titre">
+			<span class="pastille-icone"><app-icone nom="admin" [taille]="19" /></span>
+			<div>
+				<strong>Administration</strong>
+				<small>Back-office NGOMA</small>
+			</div>
+		</div>
+		<nav>
+			<a routerLink="/admin/films" routerLinkActive="actif"><app-icone nom="film" [taille]="18" />Films</a>
+			@for (module of prochainement; track module.libelle) {
+				<span class="inactif" title="Bientôt disponible"><app-icone [nom]="module.icone" [taille]="18" />{{ module.libelle }}<em>Bientôt</em></span>
+			}
+		</nav>
+	</aside>
+	<section class="contenu">
+		<router-outlet />
+	</section>
+</div>

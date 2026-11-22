@@ -1,0 +1,109 @@
+<section
+	class="carrousel"
+	aria-roledescription="carrousel"
+	aria-label="Films à la une"
+	(mouseenter)="survol.set(true)"
+	(mouseleave)="survol.set(false)"
+	(focusin)="focus.set(true)"
+	(focusout)="focus.set(false)"
+	(pointerdown)="commencerGlisser($event)"
+	(pointerup)="terminerGlisser($event)"
+	(keydown.arrowleft)="precedent()"
+	(keydown.arrowright)="suivant()"
+>
+	<!-- Images de fond : fondu enchaîné + lent zoom sur l'image active -->
+	<div class="fonds" aria-hidden="true">
+		@for (film of films(); track film.id; let i = $index) {
+			@if (film.bandeauUrl || film.afficheUrl) {
+				<img
+					class="fond"
+					[class.actif]="i === index()"
+					[class.charge]="imagesChargees().has(film.id)"
+					[src]="film.bandeauUrl || film.afficheUrl"
+					alt=""
+					[attr.fetchpriority]="i === 0 ? 'high' : null"
+					(load)="imageChargee(film.id)"
+				/>
+			}
+		}
+	</div>
+	<div class="voile"></div>
+
+	<div class="conteneur scene">
+		<!-- Pile d'affiches : le film à la une en grand, les suivants en éventail derrière -->
+		<div class="affiches" aria-hidden="true">
+			@for (film of films(); track film.id; let i = $index) {
+				<button type="button" tabindex="-1" class="affiche" [attr.data-position]="position(i)" (click)="aller(i)">
+					@if (film.afficheUrl) {
+						<img [src]="film.afficheUrl" alt="" [attr.loading]="i === 0 ? null : 'lazy'" />
+					} @else {
+						<span class="affiche-vide">{{ film.titre }}</span>
+					}
+				</button>
+			}
+		</div>
+
+		@for (film of diapo(); track film.id) {
+			<div class="contenu" animate.leave="sortie-texte" [attr.aria-live]="defilementAuto && !enPause() ? 'off' : 'polite'">
+				<span class="badge badge-plein"><app-icone nom="etoile" [taille]="13" [epaisseur]="2.2" />{{ libelle(film) }}</span>
+				<h1 style="--i: 1">{{ film.titre }}</h1>
+				<div class="meta" style="--i: 2">
+					@for (m of meta(); track m.texte) {
+						<span><app-icone [nom]="m.icone" [taille]="16" />{{ m.texte }}</span>
+					}
+				</div>
+				@if (film.synopsisCourt) {
+					<p class="accroche" style="--i: 3">{{ film.synopsisCourt }}</p>
+				}
+				<div class="actions" style="--i: 4">
+					<a class="btn btn-principal btn-lg" [routerLink]="['/regarder', film.slug]"><app-icone nom="lecture" [taille]="18" [epaisseur]="2" />Regarder</a>
+					<a class="btn btn-verre btn-lg" [routerLink]="['/film', film.slug]"><app-icone nom="info" [taille]="18" />Plus d'infos</a>
+				</div>
+			</div>
+		}
+	</div>
+
+	@if (films().length > 1) {
+		<div class="conteneur commandes">
+			<div class="indicateurs" role="tablist" aria-label="Choisir un film à la une">
+				@for (film of films(); track film.id; let i = $index) {
+					<button
+						type="button"
+						role="tab"
+						class="indicateur"
+						[class.vu]="i < index()"
+						[attr.aria-selected]="i === index()"
+						[attr.aria-label]="'Afficher ' + film.titre"
+						[title]="film.titre"
+						(click)="aller(i)"
+					>
+						<span class="jauge">
+							@if (i === index()) {
+								<span class="jauge-remplissage" [class.anime]="defilementAuto" [class.en-pause]="enPause()" (animationend)="suivant()"></span>
+							}
+						</span>
+					</button>
+				}
+			</div>
+			<span class="compteur" aria-hidden="true">{{ index() + 1 }} / {{ films().length }}</span>
+			<div class="navigation">
+				<button type="button" class="btn btn-verre btn-icone" aria-label="Film précédent" (click)="precedent()">
+					<app-icone nom="chevron-gauche" [taille]="20" />
+				</button>
+				@if (defilementAuto) {
+					<button
+						type="button"
+						class="btn btn-verre btn-icone"
+						[attr.aria-label]="pauseManuelle() ? 'Reprendre le défilement' : 'Mettre le défilement en pause'"
+						(click)="pauseManuelle.set(!pauseManuelle())"
+					>
+						<app-icone [nom]="pauseManuelle() ? 'lecture' : 'pause'" [taille]="18" [epaisseur]="2" />
+					</button>
+				}
+				<button type="button" class="btn btn-verre btn-icone" aria-label="Film suivant" (click)="suivant()">
+					<app-icone nom="chevron-droite" [taille]="20" />
+				</button>
+			</div>
+		</div>
+	}
+</section>

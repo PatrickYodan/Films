@@ -1,0 +1,353 @@
+<a routerLink="/admin/films" class="lien-retour"><app-icone nom="fleche-gauche" [taille]="16" />Tous les films</a>
+<div class="section-entete titre-formulaire">
+	<h1 class="titre-page">{{ creation() ? 'Ajouter un film' : (film()?.titre ?? 'Modifier le film') }}</h1>
+	@if (film(); as f) {
+		<span class="statut" [class.publie]="f.statut === 'PUBLIE'" [class.brouillon]="f.statut !== 'PUBLIE'">{{ f.statut === 'PUBLIE' ? 'Publié' : 'Brouillon' }}</span>
+	}
+</div>
+
+@if (chargement()) {
+	<app-chargement texte="Chargement du film…" />
+} @else if (!creation() && !film()) {
+	<div class="etat-vide">
+		<span class="pastille-icone grande danger"><app-icone nom="alerte" [taille]="28" /></span>
+		<h2>Film introuvable</h2>
+		<p>{{ erreur() }}</p>
+		<a class="btn btn-secondaire" routerLink="/admin/films">Retour à la liste</a>
+	</div>
+} @else {
+	<form [formGroup]="formulaire" (ngSubmit)="enregistrer()" novalidate>
+		<!-- 1. Informations -->
+		<section class="carte-surface bloc">
+			<div class="carte-entete">
+				<span class="pastille-icone"><app-icone nom="info" /></span>
+				<div><h2>Informations</h2><p>Titre, résumé et classement</p></div>
+			</div>
+			<div class="grille-2">
+				<div class="pleine">
+					<label class="libelle" for="titre">Titre</label>
+					<input id="titre" class="champ" formControlName="titre" placeholder="Titre tel qu'affiché sur le site" />
+					@if (invalide(formulaire.controls.titre)) {
+						<span class="erreur-champ">Le titre est obligatoire (255 caractères maximum).</span>
+					}
+					@if (film(); as f) {
+						<span class="aide">Adresse : /film/{{ f.slug }} (ne change pas si vous modifiez le titre)</span>
+					}
+				</div>
+				<div>
+					<label class="libelle" for="type">Type</label>
+					<select id="type" class="champ" formControlName="type">
+						<option value="FILM">Film</option>
+						<option value="SERIE">Série</option>
+					</select>
+				</div>
+				<div>
+					<label class="libelle" for="classification">Classification d'âge</label>
+					<select id="classification" class="champ" formControlName="classificationAge">
+						<option value="">Non renseignée</option>
+						@for (c of classifications; track c) {
+							<option [value]="c">{{ c }}</option>
+						}
+					</select>
+				</div>
+				<div>
+					<label class="libelle" for="annee">Année</label>
+					<input id="annee" type="number" class="champ" min="1900" max="2100" placeholder="2025" formControlName="annee" />
+					@if (invalide(formulaire.controls.annee)) {
+						<span class="erreur-champ">Année entre 1900 et 2100.</span>
+					}
+				</div>
+				<div>
+					<label class="libelle" for="duree">Durée <span class="optionnel">(minutes)</span></label>
+					<input id="duree" type="number" class="champ" min="1" placeholder="95" formControlName="dureeMinutes" />
+					@if (invalide(formulaire.controls.dureeMinutes)) {
+						<span class="erreur-champ">Durée entre 1 et 1000 minutes.</span>
+					}
+				</div>
+				<div>
+					<label class="libelle" for="sortie">Date de sortie</label>
+					<input id="sortie" type="date" class="champ" formControlName="dateSortie" />
+				</div>
+				<div>
+					<label class="libelle" for="bandeAnnonce">Bande-annonce <span class="optionnel">(URL)</span></label>
+					<input id="bandeAnnonce" type="url" class="champ" placeholder="https://…" formControlName="bandeAnnonceUrl" />
+					@if (invalide(formulaire.controls.bandeAnnonceUrl)) {
+						<span class="erreur-champ">Adresse web invalide (http:// ou https://).</span>
+					}
+				</div>
+				<div class="pleine">
+					<label class="libelle" for="synopsisCourt">Accroche <span class="optionnel">(une phrase, affichée sur l'accueil)</span></label>
+					<input id="synopsisCourt" class="champ" formControlName="synopsisCourt" />
+				</div>
+				<div class="pleine">
+					<label class="libelle" for="synopsis">Synopsis <span class="optionnel">(obligatoire pour publier)</span></label>
+					<textarea id="synopsis" class="champ" rows="5" formControlName="synopsis"></textarea>
+					@if (invalide(formulaire.controls.synopsis)) {
+						<span class="erreur-champ">5000 caractères maximum.</span>
+					}
+				</div>
+			</div>
+
+			<fieldset class="choix">
+				<legend class="libelle">Genres</legend>
+				<div class="puces">
+					@for (g of genres(); track g.id) {
+						<button type="button" class="puce" [attr.aria-pressed]="formulaire.controls.genreIds.value.includes(g.id)" (click)="basculerGenre(g.id)">
+							@if (formulaire.controls.genreIds.value.includes(g.id)) {
+								<app-icone nom="check" [taille]="14" [epaisseur]="2.4" />
+							}
+							{{ g.nom }}
+						</button>
+					}
+				</div>
+				@if (invalide(formulaire.controls.genreIds)) {
+					<span class="erreur-champ">Choisissez au moins un genre.</span>
+				}
+			</fieldset>
+
+			<fieldset class="choix">
+				<legend class="libelle">Pays</legend>
+				<div class="puces">
+					@for (p of pays(); track p.code) {
+						<button type="button" class="puce" [attr.aria-pressed]="formulaire.controls.paysCodes.value.includes(p.code)" (click)="basculerPays(p.code)">
+							@if (formulaire.controls.paysCodes.value.includes(p.code)) {
+								<app-icone nom="check" [taille]="14" [epaisseur]="2.4" />
+							}
+							{{ p.nom }}
+						</button>
+					}
+				</div>
+				@if (invalide(formulaire.controls.paysCodes)) {
+					<span class="erreur-champ">Choisissez au moins un pays.</span>
+				}
+			</fieldset>
+
+			<div class="options">
+				<label class="interrupteur"><input type="checkbox" formControlName="gratuit" /><span>Gratuit<small>Visible sans pass</small></span></label>
+				<label class="interrupteur"><input type="checkbox" formControlName="exclusivite" /><span>Exclusivité<small>Badge et mise à la une</small></span></label>
+				<label class="interrupteur"><input type="checkbox" formControlName="telechargeable" /><span>Téléchargeable<small>Lecture hors ligne</small></span></label>
+			</div>
+		</section>
+
+		<!-- 2. Images -->
+		<section class="carte-surface bloc">
+			<div class="carte-entete">
+				<span class="pastille-icone"><app-icone nom="image" /></span>
+				<div><h2>Images</h2><p>Affiche verticale 2:3 et bandeau horizontal 16:9</p></div>
+			</div>
+			@if (film()) {
+				<div class="images">
+					@for (img of images(); track img.type) {
+						<div class="image">
+							<p class="libelle">{{ img.titre }}</p>
+							<div class="depot" [class.paysage]="img.type === 'bandeau'" [class.survol]="survol() === img.type" (dragover)="$event.preventDefault(); survol.set(img.type)" (dragleave)="survol.set(null)" (drop)="deposer(img.type, $event)">
+								@if (img.url) {
+									<img [src]="img.url" [alt]="img.titre" />
+									<label class="btn btn-verre btn-sm remplacer">
+										<app-icone nom="envoyer" [taille]="16" />Remplacer
+										<input type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="envoyerImage(img.type, $event)" />
+									</label>
+								} @else {
+									<label class="depot-vide">
+										<app-icone nom="image" [taille]="28" />
+										<strong>Glissez une image ici</strong>
+										<span>ou cliquez pour choisir un fichier</span>
+										<input type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="envoyerImage(img.type, $event)" />
+									</label>
+								}
+								@if (progression()[img.type] !== null) {
+									<div class="depot-progression">
+										<div class="progression"><span [style.width.%]="progression()[img.type]"></span></div>
+										<span>{{ progression()[img.type] }} %</span>
+									</div>
+								}
+							</div>
+							@if (erreurImage()[img.type]) {
+								<span class="erreur-champ">{{ erreurImage()[img.type] }}</span>
+							}
+						</div>
+					}
+				</div>
+				<span class="aide">JPEG, PNG ou WebP, 5 Mo maximum. L'image est enregistrée dès l'envoi.</span>
+			} @else {
+				<p class="message-info"><app-icone nom="info" [taille]="18" />Enregistrez d'abord le brouillon pour pouvoir ajouter l'affiche et le bandeau.</p>
+			}
+		</section>
+
+		<!-- 3. Distribution -->
+		<section class="carte-surface bloc">
+			<div class="carte-entete">
+				<span class="pastille-icone"><app-icone nom="utilisateurs" /></span>
+				<div><h2>Distribution</h2><p>L'ordre des lignes est l'ordre d'affichage</p></div>
+			</div>
+			@for (ligne of distribution.controls; track ligne; let i = $index) {
+				<div class="ligne" [formGroup]="ligne">
+					<div>
+						<label class="libelle" [for]="'nom-' + i">Nom</label>
+						<input [id]="'nom-' + i" class="champ" formControlName="nom" />
+						@if (invalide(ligne.controls.nom)) {
+							<span class="erreur-champ">Nom obligatoire.</span>
+						}
+					</div>
+					<div>
+						<label class="libelle" [for]="'fonction-' + i">Fonction</label>
+						<select [id]="'fonction-' + i" class="champ" formControlName="fonction">
+							@for (f of fonctions; track f.code) {
+								<option [value]="f.code">{{ f.libelle }}</option>
+							}
+						</select>
+					</div>
+					<div>
+						<label class="libelle" [for]="'role-' + i">Rôle <span class="optionnel">(acteurs)</span></label>
+						<input [id]="'role-' + i" class="champ" formControlName="role" />
+					</div>
+					<button type="button" class="btn btn-fantome btn-icone retirer" title="Retirer" [attr.aria-label]="'Retirer la ligne ' + (i + 1)" (click)="retirerDistribution(i)">
+						<app-icone nom="corbeille" [taille]="18" />
+					</button>
+				</div>
+			} @empty {
+				<p class="texte-secondaire vide">Aucune personne pour l'instant.</p>
+			}
+			<button type="button" class="btn btn-secondaire btn-sm" (click)="ajouterDistribution()"><app-icone nom="plus" [taille]="16" />Ajouter une personne</button>
+		</section>
+
+		<!-- 4. Vidéos -->
+		<section class="carte-surface bloc">
+			<div class="carte-entete">
+				<span class="pastille-icone"><app-icone nom="video" /></span>
+				<div><h2>Vidéos</h2><p>Au moins une qualité pour publier : fichier MP4 ou lien</p></div>
+			</div>
+			<p class="aide haut">
+				Pour chaque qualité, <strong>envoyez un fichier MP4</strong> (bouton ou glisser-déposer, 4 Go maximum) <strong>ou collez un lien</strong> :
+				manifeste HLS <code>.m3u8</code> (recommandé, plusieurs résolutions) ou fichier <code>.mp4</code>,
+				par exemple <code>films/mon-film/480p/index.m3u8</code> ou <code>https://…/film.mp4</code>.
+				Un même fichier peut servir pour plusieurs qualités.
+			</p>
+			@if (!film()) {
+				<p class="message-info"><app-icone nom="info" [taille]="18" />Enregistrez d'abord le brouillon pour pouvoir envoyer des fichiers vidéo. Vous pouvez déjà coller des liens.</p>
+			}
+			<div formGroupName="videos" class="videos">
+				@for (q of qualites; track q.code) {
+					<div
+						class="video-qualite"
+						[class.survol]="survolVideo() === q.code"
+						(dragover)="film() && $event.preventDefault(); film() && survolVideo.set(q.code)"
+						(dragleave)="survolVideo.set(null)"
+						(drop)="deposerVideo(q.code, $event)"
+					>
+						<label class="libelle" [for]="'video-' + q.code">{{ q.libelle }}</label>
+						<div class="champ-groupe">
+							<app-icone nom="video" [taille]="18" />
+							<input [id]="'video-' + q.code" class="champ" [formControlName]="q.code" placeholder="Lien .m3u8 ou .mp4" />
+						</div>
+						@if (envoisVideo()[q.code] !== undefined) {
+							<div class="envoi-video" role="status">
+								<div class="progression"><span [style.width.%]="envoisVideo()[q.code]"></span></div>
+								<span>{{ envoisVideo()[q.code] }} %</span>
+								<button type="button" class="btn btn-fantome btn-sm" (click)="annulerVideo(q.code)">Annuler</button>
+							</div>
+						} @else if (film()) {
+							<div class="actions-video">
+								<label class="btn btn-secondaire btn-sm">
+									<app-icone nom="envoyer" [taille]="16" />Envoyer un fichier MP4
+									<input type="file" accept="video/mp4,.mp4" hidden (change)="choisirVideo(q.code, $event)" />
+								</label>
+								@if (tailleVideo(q.code); as taille) {
+									<span class="aide">Fichier · {{ taille }}</span>
+								}
+							</div>
+						}
+						@if (erreursVideo()[q.code]) {
+							<span class="erreur-champ">{{ erreursVideo()[q.code] }}</span>
+						} @else if (invalide(formulaire.controls.videos.controls[q.code])) {
+							<span class="erreur-champ">Lien invalide : un fichier .m3u8 ou .mp4, sans « .. ».</span>
+						}
+					</div>
+				}
+			</div>
+		</section>
+
+		<!-- 5. Sous-titres -->
+		<section class="carte-surface bloc">
+			<div class="carte-entete">
+				<span class="pastille-icone"><app-icone nom="sous-titres" /></span>
+				<div><h2>Sous-titres</h2><p>Une piste par langue : fichier .vtt ou .srt, ou lien vers un .vtt</p></div>
+			</div>
+			@for (ligne of sousTitres.controls; track ligne; let i = $index) {
+				<div class="ligne" [formGroup]="ligne">
+					<div>
+						<label class="libelle" [for]="'langue-' + i">Langue</label>
+						<input [id]="'langue-' + i" class="champ" placeholder="fr" formControlName="langue" />
+						@if (invalide(ligne.controls.langue)) {
+							<span class="erreur-champ">Code langue (fr, en, wo…).</span>
+						}
+					</div>
+					<div>
+						<label class="libelle" [for]="'libelle-' + i">Libellé</label>
+						<input [id]="'libelle-' + i" class="champ" placeholder="Français" formControlName="libelle" />
+						@if (invalide(ligne.controls.libelle)) {
+							<span class="erreur-champ">Libellé obligatoire.</span>
+						}
+					</div>
+					<div>
+						<label class="libelle" [for]="'vtt-' + i">Fichier de sous-titres</label>
+						<input [id]="'vtt-' + i" class="champ" placeholder="Lien https://…/fr.vtt" formControlName="fichierVttUrl" />
+						@if (film()) {
+							<label class="btn btn-secondaire btn-sm envoyer-st" [class.desactive]="envoiSousTitre() === i">
+								<app-icone nom="envoyer" [taille]="16" />{{ envoiSousTitre() === i ? 'Envoi…' : 'Envoyer un .vtt ou .srt' }}
+								<input type="file" accept=".vtt,.srt,text/vtt" hidden (change)="choisirSousTitre(i, $event)" />
+							</label>
+						}
+						@if (erreursSousTitre()[i]) {
+							<span class="erreur-champ">{{ erreursSousTitre()[i] }}</span>
+						} @else if (invalide(ligne.controls.fichierVttUrl)) {
+							<span class="erreur-champ">Adresse d'un fichier .vtt attendue, ou envoyez un fichier.</span>
+						}
+					</div>
+					<button type="button" class="btn btn-fantome btn-icone retirer" title="Retirer" [attr.aria-label]="'Retirer le sous-titre ' + (i + 1)" (click)="retirerSousTitre(i)">
+						<app-icone nom="corbeille" [taille]="18" />
+					</button>
+				</div>
+			} @empty {
+				<p class="texte-secondaire vide">Aucun sous-titre.</p>
+			}
+			<button type="button" class="btn btn-secondaire btn-sm" (click)="ajouterSousTitre()"><app-icone nom="plus" [taille]="16" />Ajouter un sous-titre</button>
+		</section>
+
+		<!-- Actions -->
+		<div class="barre-actions">
+			<div class="etat-publication">
+				@if (erreur()) {
+					<p class="message-erreur" role="alert">
+						<app-icone nom="alerte" [taille]="18" />
+						<span>
+							{{ erreur() }}
+							@if (conflit()) {
+								<button type="button" class="btn btn-secondaire btn-sm recharger" (click)="recharger()"><app-icone nom="recharger" [taille]="16" />Recharger le film</button>
+							}
+						</span>
+					</p>
+				} @else if (film()?.elementsManquants?.length && !publie()) {
+					<p class="manquants"><app-icone nom="info" [taille]="18" />Pour publier, il manque : {{ film()?.elementsManquants?.join(', ') }}.</p>
+				} @else if (film() && !publie()) {
+					<p class="pret"><app-icone nom="succes" [taille]="18" />Prêt à être publié.</p>
+				}
+			</div>
+			<div class="boutons">
+				@if (film(); as f) {
+					@if (f.statut === 'PUBLIE') {
+						<a class="btn btn-fantome" [routerLink]="['/film', f.slug]" target="_blank"><app-icone nom="lien-externe" [taille]="17" />Voir</a>
+					}
+				}
+				<button type="submit" class="btn btn-secondaire" [disabled]="enCours()">
+					{{ publie() ? 'Enregistrer' : 'Enregistrer le brouillon' }}
+				</button>
+				@if (publie()) {
+					<button type="button" class="btn btn-secondaire" [disabled]="enCours()" (click)="depublier()"><app-icone nom="oeil-barre" [taille]="17" />Dépublier</button>
+				} @else {
+					<button type="button" class="btn btn-principal" [disabled]="enCours()" (click)="publier()"><app-icone nom="oeil" [taille]="17" />Publier</button>
+				}
+			</div>
+		</div>
+	</form>
+}

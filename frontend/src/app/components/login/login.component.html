@@ -1,0 +1,49 @@
+<div class="conteneur auth">
+	<aside class="auth-visuel" aria-hidden="true">
+		<app-icone class="auth-motif" nom="tambour" [taille]="340" [epaisseur]="0.5" />
+		<span class="surtitre">NGOMA</span>
+		<h2>Vos films vous attendent.</h2>
+		<ul>
+			<li><app-icone nom="check" [taille]="18" [epaisseur]="2.2" />Des films de tout le continent</li>
+			<li><app-icone nom="check" [taille]="18" [epaisseur]="2.2" />Paiement Orange Money, MTN, Wave, Moov</li>
+			<li><app-icone nom="check" [taille]="18" [epaisseur]="2.2" />Mode économie de données pour la 3G</li>
+		</ul>
+	</aside>
+
+	<div class="auth-formulaire apparition">
+		<h1>Bon retour</h1>
+		<p>Connectez-vous pour reprendre vos films là où vous les avez laissés.</p>
+
+		<form [formGroup]="formulaire" (ngSubmit)="connecter()" novalidate>
+			<label class="libelle" for="email">Adresse e-mail</label>
+			<div class="champ-groupe">
+				<app-icone nom="email" [taille]="18" />
+				<input id="email" type="email" class="champ" autocomplete="email" placeholder="vous@exemple.com" formControlName="email" />
+			</div>
+			@if (formulaire.controls.email.touched && formulaire.controls.email.invalid) {
+				<span class="erreur-champ">Saisissez une adresse e-mail valide.</span>
+			}
+
+			<label class="libelle" for="motDePasse">Mot de passe</label>
+			<div class="champ-groupe">
+				<app-icone nom="cadenas" [taille]="18" />
+				<input id="motDePasse" class="champ" [type]="motDePasseVisible() ? 'text' : 'password'" autocomplete="current-password" formControlName="motDePasse" />
+				<button type="button" class="btn btn-fantome btn-icone btn-sm champ-action" [attr.aria-label]="motDePasseVisible() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'" (click)="motDePasseVisible.set(!motDePasseVisible())">
+					<app-icone [nom]="motDePasseVisible() ? 'oeil-barre' : 'oeil'" [taille]="18" />
+				</button>
+			</div>
+			@if (formulaire.controls.motDePasse.touched && formulaire.controls.motDePasse.invalid) {
+				<span class="erreur-champ">Saisissez votre mot de passe.</span>
+			}
+
+			@if (erreur()) {
+				<p class="message-erreur" role="alert"><app-icone nom="alerte" [taille]="18" />{{ erreur() }}</p>
+			}
+
+			<button type="submit" class="btn btn-principal btn-lg btn-bloc" [disabled]="envoiEnCours()">
+				{{ envoiEnCours() ? 'Connexion…' : 'Se connecter' }}
+			</button>
+		</form>
+		<p class="bas">Pas encore de compte ? <a class="lien" routerLink="/inscription" [queryParams]="{ retour: retour() }">Créer un compte</a></p>
+	</div>
+</div>

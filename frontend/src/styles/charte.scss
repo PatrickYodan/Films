@@ -1,0 +1,43 @@
+// Charte graphique NGOMA (extraite des maquettes) : jetons de design.
+// Règle : aucune ombre portée ; la profondeur vient des surfaces et des bordures.
+:root {
+	// Surfaces, de la plus sombre à la plus claire
+	--fond: #12100e;
+	--surface: #1a1714;
+	--surface-2: #24201c;
+	--surface-3: #2f2924;
+	--bordure: #3a342d;
+	--bordure-douce: #2a2520;
+
+	// Texte
+	--texte: #f4eee6;
+	--texte-2: #b3a99c;
+	--texte-3: #857b70;
+
+	// Accent (ocre des maquettes)
+	--accent: #e9a23b;
+	--accent-clair: #f2b65a;
+	--accent-fonce: #6b4e1f;
+	--accent-doux: rgb(233 162 59 / 14%);
+
+	// États
+	--erreur: #e5484d;
+	--erreur-doux: rgb(229 72 77 / 12%);
+	--succes: #46a758;
+	--succes-doux: rgb(70 167 88 / 14%);
+
+	// Typographie
+	--police-titre: 'Syne', 'Segoe UI', sans-serif;
+	--police-texte: 'Inter', 'Segoe UI', system-ui, sans-serif;
+
+	// Formes et mouvement
+	--rayon-s: 8px;
+	--rayon: 12px;
+	--rayon-l: 18px;
+	--rayon-pilule: 999px;
+	--courbe: cubic-bezier(0.2, 0.7, 0.2, 1);
+	--transition: 180ms var(--courbe);
+	--hauteur-entete: 68px;
+
+	color-scheme: dark;
+}

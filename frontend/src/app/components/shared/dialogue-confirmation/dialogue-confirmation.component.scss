@@ -1,0 +1,46 @@
+.dialogue {
+	width: min(440px, calc(100vw - 32px));
+	padding: 0;
+	border: 1px solid var(--bordure);
+	border-radius: 22px;
+	background: var(--surface);
+	color: var(--texte);
+
+	&::backdrop {
+		background: rgb(8 7 6 / 72%);
+		backdrop-filter: blur(4px);
+	}
+
+	&[open] {
+		animation: ouvrir 0.22s var(--courbe);
+	}
+}
+
+@keyframes ouvrir {
+	from {
+		opacity: 0;
+		transform: translateY(8px) scale(0.98);
+	}
+}
+
+.contenu {
+	padding: 26px;
+
+	h2 {
+		margin: 16px 0 8px;
+		font-size: 1.25rem;
+	}
+
+	p {
+		margin: 0;
+		color: var(--texte-2);
+		line-height: 1.55;
+	}
+}
+
+.actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	margin-top: 26px;
+}

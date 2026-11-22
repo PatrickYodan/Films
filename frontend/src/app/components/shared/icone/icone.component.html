@@ -1,0 +1,16 @@
+<svg
+	viewBox="0 0 24 24"
+	[attr.width]="taille()"
+	[attr.height]="taille()"
+	fill="none"
+	stroke="currentColor"
+	[attr.stroke-width]="epaisseur()"
+	stroke-linecap="round"
+	stroke-linejoin="round"
+	aria-hidden="true"
+	focusable="false"
+>
+	@for (d of chemins(); track $index) {
+		<path [attr.d]="d" />
+	}
+</svg>

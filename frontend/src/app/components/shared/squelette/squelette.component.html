@@ -1,0 +1,71 @@
+<div class="sr-only" role="status">Chargement en cours</div>
+@switch (type()) {
+	@case ('rail') {
+		<div class="rail" aria-hidden="true">
+			@for (i of elements(); track i) {
+				<div class="carte">
+					<div class="squelette affiche"></div>
+					<div class="squelette ligne"></div>
+					<div class="squelette ligne courte"></div>
+				</div>
+			}
+		</div>
+	}
+	@case ('grille') {
+		<div class="grille-films" aria-hidden="true">
+			@for (i of elements(); track i) {
+				<div class="carte">
+					<div class="squelette affiche"></div>
+					<div class="squelette ligne"></div>
+					<div class="squelette ligne courte"></div>
+				</div>
+			}
+		</div>
+	}
+	@case ('hero') {
+		<div class="hero" aria-hidden="true">
+			<div class="conteneur hero-contenu">
+				<div class="squelette pilule"></div>
+				<div class="squelette titre"></div>
+				<div class="squelette ligne moyenne"></div>
+				<div class="boutons"><div class="squelette bouton"></div><div class="squelette bouton"></div></div>
+			</div>
+		</div>
+	}
+	@case ('fiche') {
+		<div class="fiche" aria-hidden="true">
+			<div class="conteneur fiche-contenu">
+				<div class="squelette fiche-affiche"></div>
+				<div class="fiche-texte">
+					<div class="squelette pilule"></div>
+					<div class="squelette titre"></div>
+					<div class="squelette ligne moyenne"></div>
+					<div class="squelette ligne"></div>
+					<div class="squelette ligne courte"></div>
+					<div class="boutons"><div class="squelette bouton"></div><div class="squelette bouton"></div></div>
+				</div>
+			</div>
+		</div>
+	}
+	@case ('tableau') {
+		<div class="tableau" aria-hidden="true">
+			@for (i of elements(); track i) {
+				<div class="tableau-ligne">
+					<div class="squelette miniature"></div>
+					<div class="tableau-texte">
+						<div class="squelette ligne moyenne"></div>
+						<div class="squelette ligne courte"></div>
+					</div>
+					<div class="squelette pilule"></div>
+				</div>
+			}
+		</div>
+	}
+	@default {
+		<div class="lignes" aria-hidden="true">
+			@for (i of elements(); track i) {
+				<div class="squelette ligne" [class.courte]="i % 3 === 2"></div>
+			}
+		</div>
+	}
+}

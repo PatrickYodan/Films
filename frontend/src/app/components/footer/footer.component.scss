@@ -1,0 +1,163 @@
+@use 'styles/variables' as v;
+
+.pied {
+	margin-top: 72px;
+	border-top: 1px solid var(--bordure-douce);
+	background: var(--surface);
+}
+
+.grille {
+	display: grid;
+	grid-template-columns: 2fr 1fr 1fr 1fr;
+	gap: 32px;
+	padding-block: 48px 32px;
+
+	@media (max-width: v.$bp-tablette) {
+		grid-template-columns: repeat(3, 1fr);
+
+		.marque {
+			grid-column: 1 / -1;
+		}
+	}
+
+	@media (max-width: v.$bp-mobile) {
+		grid-template-columns: 1fr 1fr;
+
+		.marque {
+			grid-column: 1 / -1;
+		}
+	}
+}
+
+.logo {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	color: var(--texte);
+	font-family: var(--police-titre);
+	font-size: 1.2rem;
+	font-weight: 800;
+	letter-spacing: 0.1em;
+	text-decoration: none;
+}
+
+.logo-marque {
+	display: grid;
+	place-items: center;
+	width: 30px;
+	height: 30px;
+	border-radius: 9px;
+	background: var(--accent);
+	color: var(--fond);
+}
+
+.marque p {
+	margin: 12px 0 18px;
+	color: var(--texte-2);
+}
+
+.moyens {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.moyen {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	padding: 5px 11px;
+	border: 1px solid var(--bordure-douce);
+	border-radius: 999px;
+	color: var(--texte-2);
+	font-size: 0.8rem;
+
+	i {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+	}
+}
+
+.suivre h2 {
+	margin: 0 0 14px;
+	color: var(--texte);
+	font-family: var(--police-texte);
+	font-size: 0.82rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.reseaux {
+	display: flex;
+	gap: 10px;
+}
+
+// Icônes au trait, sans ombre ; la couleur du réseau apparaît au survol
+.reseau {
+	--couleur: var(--accent);
+	display: grid;
+	place-items: center;
+	width: 42px;
+	height: 42px;
+	border: 1px solid var(--bordure);
+	border-radius: 50%;
+	color: var(--texte-2);
+	transition:
+		color var(--transition),
+		border-color var(--transition),
+		background var(--transition),
+		transform var(--transition);
+
+	&:hover,
+	&:focus-visible {
+		border-color: var(--couleur);
+		background: color-mix(in srgb, var(--couleur) 14%, transparent);
+		color: var(--couleur);
+		transform: translateY(-2px);
+	}
+}
+
+.reseau-whatsapp {
+	--couleur: #25d366;
+}
+
+.reseau-youtube {
+	--couleur: #ff3d3d;
+}
+
+.reseau-facebook {
+	--couleur: #3b82f6;
+}
+
+nav {
+	display: grid;
+	align-content: start;
+	gap: 10px;
+
+	h2 {
+		margin: 0 0 4px;
+		color: var(--texte);
+		font-family: var(--police-texte);
+		font-size: 0.82rem;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+	}
+
+	a {
+		color: var(--texte-2);
+		text-decoration: none;
+		transition: color var(--transition);
+
+		&:hover {
+			color: var(--accent);
+		}
+	}
+}
+
+.bas {
+	padding-block: 20px;
+	border-top: 1px solid var(--bordure-douce);
+	color: var(--texte-3);
+	font-size: 0.84rem;
+}

@@ -1,0 +1,15 @@
+<div class="conteneur page etat-vide">
+	<span class="code" aria-hidden="true">{{ interdit ? '403' : '404' }}</span>
+	<span class="pastille-icone grande neutre"><app-icone [nom]="interdit ? 'cadenas' : 'film'" [taille]="30" /></span>
+	@if (interdit) {
+		<h1>Accès interdit</h1>
+		<p>Cette page est réservée aux administrateurs de NGOMA.</p>
+	} @else {
+		<h1>Page introuvable</h1>
+		<p>Cette page n'existe pas ou n'est plus disponible.</p>
+	}
+	<div class="boutons">
+		<a class="btn btn-principal" routerLink="/"><app-icone nom="accueil" [taille]="18" />Retour à l'accueil</a>
+		<a class="btn btn-secondaire" routerLink="/catalogue">Parcourir le catalogue</a>
+	</div>
+</div>

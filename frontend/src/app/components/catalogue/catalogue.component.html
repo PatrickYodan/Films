@@ -1,0 +1,81 @@
+<div class="conteneur page">
+	<div class="entete">
+		<div>
+			<h1 class="titre-page">{{ titre() }}</h1>
+			<p class="texte-secondaire compteur">
+				@if (chargement()) {
+					Recherche en cours…
+				} @else if (resultat(); as r) {
+					{{ r.total }} titre{{ r.total > 1 ? 's' : '' }}
+				}
+			</p>
+		</div>
+	</div>
+
+	<div class="filtres">
+		<div class="filtres-ligne">
+			<label class="champ-groupe recherche">
+				<app-icone nom="recherche" [taille]="18" />
+				<input type="search" class="champ" placeholder="Rechercher un titre" aria-label="Rechercher un titre" [value]="criteres().motCle ?? ''" (change)="filtrer({ motCle: valeur($event) })" />
+			</label>
+			<label class="champ-groupe pays">
+				<app-icone nom="globe" [taille]="18" />
+				<select class="champ" aria-label="Pays" (change)="filtrer({ paysCode: valeur($event) })">
+					<option value="">Tous les pays</option>
+					@for (p of pays(); track p.code) {
+						<option [value]="p.code" [selected]="p.code === criteres().paysCode">{{ p.nom }}</option>
+					}
+				</select>
+			</label>
+			<label class="interrupteur">
+				<input type="checkbox" [checked]="criteres().gratuit" (change)="filtrer({ gratuit: !criteres().gratuit })" />
+				Gratuits uniquement
+			</label>
+		</div>
+		<div class="puces-defilantes" role="group" aria-label="Genres">
+			<button type="button" class="puce" [attr.aria-pressed]="!criteres().genreId" (click)="filtrer({ genreId: null })">Tous les genres</button>
+			@for (g of genres(); track g.id) {
+				<button type="button" class="puce" [attr.aria-pressed]="g.id === criteres().genreId" (click)="filtrer({ genreId: g.id })">{{ g.nom }}</button>
+			}
+		</div>
+	</div>
+
+	@if (chargement()) {
+		<app-squelette type="grille" [nombre]="12" />
+	} @else if (erreur()) {
+		<div class="etat-vide">
+			<span class="pastille-icone grande danger"><app-icone nom="alerte" [taille]="28" /></span>
+			<h2>Catalogue indisponible</h2>
+			<p>{{ erreur() }}</p>
+			<button type="button" class="btn btn-secondaire" (click)="reinitialiser()"><app-icone nom="recharger" [taille]="18" />Réessayer</button>
+		</div>
+	} @else if (resultat(); as r) {
+		@if (r.contenu.length) {
+			<div class="grille-films apparition">
+				@for (film of r.contenu; track film.id) {
+					<app-film-card [film]="film" />
+				}
+			</div>
+			@if (r.totalPages > 1) {
+				<nav class="pagination" aria-label="Pagination">
+					<button type="button" class="btn btn-secondaire btn-icone" aria-label="Page précédente" [disabled]="page() === 0" (click)="allerPage(page() - 1)">
+						<app-icone nom="chevron-gauche" />
+					</button>
+					<span>Page {{ page() + 1 }} sur {{ r.totalPages }}</span>
+					<button type="button" class="btn btn-secondaire btn-icone" aria-label="Page suivante" [disabled]="page() + 1 >= r.totalPages" (click)="allerPage(page() + 1)">
+						<app-icone nom="chevron-droite" />
+					</button>
+				</nav>
+			}
+		} @else {
+			<div class="etat-vide">
+				<span class="pastille-icone grande neutre"><app-icone nom="recherche" [taille]="28" /></span>
+				<h2>Aucun film trouvé</h2>
+				<p>Essayez un autre titre, un autre genre ou un autre pays.</p>
+				@if (filtresActifs()) {
+					<button type="button" class="btn btn-secondaire" (click)="reinitialiser()"><app-icone nom="filtre" [taille]="18" />Effacer les filtres</button>
+				}
+			</div>
+		}
+	}
+</div>

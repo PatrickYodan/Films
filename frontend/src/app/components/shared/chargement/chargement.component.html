@@ -1,0 +1,10 @@
+<div class="chargement" role="status" aria-live="polite">
+	<div class="battements" aria-hidden="true">
+		<span></span><span></span><span></span><span></span><span></span>
+	</div>
+	@if (texte()) {
+		<p>{{ texte() }}</p>
+	} @else {
+		<span class="sr-only">Chargement</span>
+	}
+</div>

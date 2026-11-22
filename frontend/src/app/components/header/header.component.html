@@ -1,0 +1,76 @@
+<header class="entete">
+	<div class="conteneur barre">
+		<a routerLink="/" class="logo" aria-label="NGOMA, accueil">
+			<span class="logo-marque"><app-icone nom="tambour" [taille]="20" [epaisseur]="2" /></span>
+			<span class="logo-texte">NGOMA</span>
+		</a>
+
+		<nav class="nav" aria-label="Navigation principale">
+			<a routerLink="/" routerLinkActive="actif" [routerLinkActiveOptions]="{ exact: true }">Accueil</a>
+			<a routerLink="/catalogue" routerLinkActive="actif">Films</a>
+			<a routerLink="/gratuit" routerLinkActive="actif">Gratuit</a>
+		</nav>
+
+		<form class="recherche" role="search" (ngSubmit)="rechercher()">
+			<label class="champ-groupe">
+				<app-icone nom="recherche" [taille]="18" />
+				<input type="search" name="recherche" class="champ" placeholder="Rechercher un film" aria-label="Rechercher un film" [(ngModel)]="recherche" />
+			</label>
+		</form>
+
+		<div class="actions">
+			@if (authService.connecte()) {
+				<div class="compte">
+					<button type="button" class="compte-bouton" aria-haspopup="menu" [attr.aria-expanded]="menuCompteOuvert()" (click)="basculerMenuCompte()">
+						<app-avatar [nom]="utilisateurService.nom()" [photoUrl]="utilisateurService.photoUrl()" />
+						<span class="compte-nom">{{ utilisateurService.nom() }}</span>
+						<app-icone class="compte-chevron" [class.tourne]="menuCompteOuvert()" nom="chevron-bas" [taille]="16" />
+					</button>
+					@if (menuCompteOuvert()) {
+						<div class="menu-compte" role="menu">
+							<div class="menu-compte-entete">
+								<strong>{{ utilisateurService.nom() }}</strong>
+								<span>{{ authService.utilisateur()?.email }}</span>
+							</div>
+							<a role="menuitem" routerLink="/mon-compte"><app-icone nom="utilisateur" [taille]="18" />Mon compte</a>
+							<a role="menuitem" routerLink="/abonnement"><app-icone nom="ticket" [taille]="18" />Mon pass</a>
+							@if (estAdmin()) {
+								<a role="menuitem" routerLink="/admin"><app-icone nom="admin" [taille]="18" />Administration</a>
+							}
+							<hr />
+							<button type="button" role="menuitem" (click)="deconnecter()"><app-icone nom="deconnexion" [taille]="18" />Se déconnecter</button>
+						</div>
+					}
+				</div>
+			} @else {
+				<a routerLink="/connexion" class="btn btn-fantome visiteur">Se connecter</a>
+				<a routerLink="/abonnement" class="btn btn-principal visiteur">S'abonner</a>
+			}
+			<button type="button" class="btn btn-fantome btn-icone burger" [attr.aria-label]="menuOuvert() ? 'Fermer le menu' : 'Ouvrir le menu'" [attr.aria-expanded]="menuOuvert()" (click)="menuOuvert.set(!menuOuvert())">
+				<app-icone [nom]="menuOuvert() ? 'fermer' : 'menu'" [taille]="22" />
+			</button>
+		</div>
+	</div>
+
+	@if (menuOuvert()) {
+		<div class="panneau-mobile conteneur">
+			<form role="search" (ngSubmit)="rechercher()">
+				<label class="champ-groupe">
+					<app-icone nom="recherche" [taille]="18" />
+					<input type="search" name="recherche-mobile" class="champ" placeholder="Rechercher un film" aria-label="Rechercher un film" [(ngModel)]="recherche" />
+				</label>
+			</form>
+			<nav aria-label="Navigation mobile">
+				<a routerLink="/" routerLinkActive="actif" [routerLinkActiveOptions]="{ exact: true }"><app-icone nom="accueil" />Accueil</a>
+				<a routerLink="/catalogue" routerLinkActive="actif"><app-icone nom="film" />Films</a>
+				<a routerLink="/gratuit" routerLinkActive="actif"><app-icone nom="gratuit" />Gratuit</a>
+			</nav>
+			@if (!authService.connecte()) {
+				<div class="panneau-boutons">
+					<a routerLink="/connexion" class="btn btn-secondaire">Se connecter</a>
+					<a routerLink="/abonnement" class="btn btn-principal">S'abonner</a>
+				</div>
+			}
+		</div>
+	}
+</header>

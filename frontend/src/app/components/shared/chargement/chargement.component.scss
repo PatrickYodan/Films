@@ -1,0 +1,67 @@
+:host {
+	display: block;
+}
+
+:host(.plein) .chargement {
+	min-height: 50vh;
+}
+
+.chargement {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 16px;
+	padding: 32px 16px;
+	color: var(--texte-2);
+	font-size: 0.92rem;
+
+	p {
+		margin: 0;
+	}
+}
+
+.battements {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	height: 36px;
+
+	span {
+		width: 5px;
+		height: 100%;
+		border-radius: 999px;
+		background: var(--accent);
+		transform-origin: center;
+		animation: battre 1s var(--courbe) infinite;
+
+		&:nth-child(2) {
+			animation-delay: 0.12s;
+		}
+
+		&:nth-child(3) {
+			animation-delay: 0.24s;
+		}
+
+		&:nth-child(4) {
+			animation-delay: 0.36s;
+		}
+
+		&:nth-child(5) {
+			animation-delay: 0.48s;
+		}
+	}
+}
+
+@keyframes battre {
+	0%,
+	100% {
+		transform: scaleY(0.3);
+		opacity: 0.5;
+	}
+
+	40% {
+		transform: scaleY(1);
+		opacity: 1;
+	}
+}

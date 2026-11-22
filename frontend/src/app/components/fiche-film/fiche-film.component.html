@@ -1,0 +1,103 @@
+@if (film(); as f) {
+	<section class="bandeau">
+		@if (f.bandeauUrl || f.afficheUrl) {
+			<img class="bandeau-image" [class.chargee]="bandeauCharge()" [src]="f.bandeauUrl || f.afficheUrl" alt="" (load)="bandeauCharge.set(true)" />
+		}
+		<div class="bandeau-voile"></div>
+		<div class="conteneur bandeau-contenu apparition">
+			<div class="affiche">
+				@if (f.afficheUrl) {
+					<img [src]="f.afficheUrl" [alt]="'Affiche de ' + f.titre" [class.chargee]="afficheChargee()" (load)="afficheChargee.set(true)" />
+				} @else {
+					<app-icone nom="film" [taille]="36" />
+				}
+			</div>
+			<div class="infos">
+				<a class="lien-retour" routerLink="/catalogue"><app-icone nom="fleche-gauche" [taille]="16" />Catalogue</a>
+				<div class="badges">
+					@if (f.exclusivite) {
+						<span class="badge badge-plein"><app-icone nom="etoile" [taille]="13" [epaisseur]="2.2" />Exclusivité</span>
+					}
+					@if (f.gratuit) {
+						<span class="badge badge-succes">Gratuit</span>
+					}
+					<span class="badge badge-verre">HD</span>
+					@if (f.telechargeable) {
+						<span class="badge badge-verre"><app-icone nom="telecharger" [taille]="13" />Hors ligne</span>
+					}
+				</div>
+				<h1>{{ f.titre }}</h1>
+				<div class="meta">
+					@if (f.annee) {
+						<span><app-icone nom="calendrier" [taille]="16" />{{ f.annee }}</span>
+					}
+					@if (duree()) {
+						<span><app-icone nom="horloge" [taille]="16" />{{ duree() }}</span>
+					}
+					@if (f.classificationAge) {
+						<span class="badge badge-contour">{{ f.classificationAge }}</span>
+					}
+				</div>
+				<div class="puces">
+					@for (g of f.genres; track g.id) {
+						<a class="puce" routerLink="/catalogue" [queryParams]="{ genreId: g.id }">{{ g.nom }}</a>
+					}
+					@for (p of f.pays; track p.code) {
+						<a class="puce" [routerLink]="['/pays', p.code]"><app-icone nom="globe" [taille]="15" />{{ p.nom }}</a>
+					}
+				</div>
+				@if (f.synopsisCourt) {
+					<p class="accroche">{{ f.synopsisCourt }}</p>
+				}
+				<div class="actions">
+					<button type="button" class="btn btn-principal btn-lg" (click)="regarder(f)"><app-icone nom="lecture" [taille]="18" [epaisseur]="2" />Regarder</button>
+					@if (f.bandeAnnonceUrl) {
+						<a class="btn btn-verre btn-lg" [href]="f.bandeAnnonceUrl" target="_blank" rel="noopener"><app-icone nom="video" [taille]="18" />Bande-annonce</a>
+					}
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<div class="conteneur corps">
+		<section>
+			<h2>Synopsis</h2>
+			<p class="synopsis">{{ f.synopsis || f.synopsisCourt || 'Synopsis à venir.' }}</p>
+		</section>
+
+		<aside class="carte-surface">
+			<div class="carte-entete">
+				<span class="pastille-icone"><app-icone nom="signal" [taille]="20" /></span>
+				<div>
+					<h2>Qualité de lecture</h2>
+					<p>Adaptez l'image à votre connexion</p>
+				</div>
+			</div>
+			<div class="qualites" role="radiogroup" aria-label="Qualité de lecture">
+				@for (q of qualites; track q.code) {
+					<button type="button" role="radio" class="option qualite" [class.selectionnee]="qualite() === q.code" [attr.aria-checked]="qualite() === q.code" (click)="choisirQualite(q.code)">
+						<span class="niveau" [attr.data-niveau]="q.niveau" aria-hidden="true"><i></i><i></i><i></i></span>
+						<span class="qualite-texte">
+							<strong>{{ q.libelle }}</strong>
+							<span>{{ q.description }}</span>
+						</span>
+						<span class="option-coche"><app-icone nom="check" [taille]="13" [epaisseur]="2.6" /></span>
+					</button>
+				}
+			</div>
+		</aside>
+	</div>
+
+	<div class="conteneur">
+		<app-film-rail titre="Vous aimerez aussi" [films]="similaires()" />
+	</div>
+} @else if (erreur()) {
+	<div class="conteneur page etat-vide">
+		<span class="pastille-icone grande neutre"><app-icone nom="film" [taille]="30" /></span>
+		<h1>Film introuvable</h1>
+		<p>{{ erreur() }}</p>
+		<a class="btn btn-principal" routerLink="/catalogue"><app-icone nom="fleche-gauche" [taille]="18" />Retour au catalogue</a>
+	</div>
+} @else {
+	<app-squelette type="fiche" />
+}

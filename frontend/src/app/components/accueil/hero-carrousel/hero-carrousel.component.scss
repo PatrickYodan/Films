@@ -1,0 +1,327 @@
+@use 'styles/variables' as v;
+
+.carrousel {
+	--largeur-affiche: clamp(210px, 21vw, 300px);
+	// Courbe douce, sans à-coup ni rebond, commune à tous les mouvements du carrousel
+	--fluide: cubic-bezier(0.25, 0.8, 0.25, 1);
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	min-height: min(82vh, 720px);
+	overflow: hidden;
+	background: var(--surface);
+	touch-action: pan-y;
+}
+
+// ------------------------------------------------------------------ fonds
+// Zoom lent par transition (et non par animation) : quand on change de film avant la fin,
+// l'image qui s'efface repart doucement au lieu de reprendre sa taille d'un coup.
+.fond {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	opacity: 0;
+	transform: scale(1.06);
+	transition:
+		opacity 0.7s var(--fluide),
+		transform 0.7s var(--fluide);
+
+	&.actif.charge {
+		opacity: 1;
+		transform: scale(1);
+		transition:
+			opacity 0.7s var(--fluide),
+			transform var(--duree-diapo) ease-out;
+	}
+}
+
+.voile {
+	position: absolute;
+	inset: 0;
+	background:
+		linear-gradient(90deg, var(--fond) 4%, rgb(18 16 14 / 72%) 40%, rgb(18 16 14 / 30%) 75%),
+		linear-gradient(0deg, var(--fond) 3%, transparent 55%);
+}
+
+// ------------------------------------------------------------------ scène : texte + pile d'affiches
+.scene {
+	position: relative;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 48px;
+	padding-top: 64px;
+	padding-bottom: 24px;
+}
+
+// L'ancien texte et le nouveau occupent la même case de la grille : ils se superposent
+// le temps du fondu enchaîné, sans décaler la page.
+.contenu {
+	grid-column: 1;
+	grid-row: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+	min-width: 0;
+
+	h1 {
+		max-width: 680px;
+		margin: 0;
+		font-size: clamp(2.2rem, 5vw, 3.8rem);
+	}
+}
+
+.affiches {
+	position: relative;
+	grid-column: 2;
+	grid-row: 1;
+	width: calc(var(--largeur-affiche) * 1.55);
+	// 1,55 largeur d'affiche × 1,5 largeur (hauteur d'une affiche 2:3)
+	aspect-ratio: 31 / 30;
+}
+
+.affiche {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: var(--largeur-affiche);
+	aspect-ratio: 2 / 3;
+	padding: 0;
+	overflow: hidden;
+	border: 1px solid rgb(244 238 230 / 16%);
+	border-radius: var(--rayon-l);
+	background: var(--surface-2);
+	cursor: pointer;
+	transform-origin: left center;
+	transition:
+		transform 0.6s var(--fluide),
+		opacity 0.6s var(--fluide),
+		filter 0.6s var(--fluide);
+
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	// Film à la une : au premier plan, légère flottaison. Elle passe par la propriété « translate »
+	// (et non « transform ») pour ne pas interrompre le glissement de l'affiche vers sa place.
+	&[data-position='0'] {
+		z-index: 3;
+		border-color: rgb(244 238 230 / 30%);
+		animation: flotter 5s ease-in-out infinite;
+	}
+
+	&[data-position='1'] {
+		z-index: 2;
+		transform: translateX(30%) scale(0.86);
+		opacity: 0.6;
+		filter: brightness(0.7);
+	}
+
+	&[data-position='2'] {
+		z-index: 1;
+		transform: translateX(55%) scale(0.74);
+		opacity: 0.3;
+		filter: brightness(0.6);
+	}
+
+	&[data-position='sortie'] {
+		z-index: 4;
+		transform: translateX(-25%) scale(0.92) rotate(-4deg);
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	&[data-position='cache'] {
+		transform: translateX(70%) scale(0.6);
+		opacity: 0;
+		pointer-events: none;
+	}
+}
+
+@keyframes flotter {
+	50% {
+		translate: 0 -8px;
+	}
+}
+
+.affiche-vide {
+	display: block;
+	padding: 16px;
+	color: var(--texte);
+	font-weight: 700;
+}
+
+// ------------------------------------------------------------------ texte (entrée en cascade)
+// Le nouveau texte arrive en cascade, juste après le départ de l'ancien
+.contenu > * {
+	animation: entrer 0.5s var(--fluide) both;
+	animation-delay: calc(0.1s + var(--i, 0) * 0.04s);
+}
+
+@keyframes entrer {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+}
+
+// L'ancien texte s'efface en remontant légèrement (classe posée par animate.leave)
+.sortie-texte {
+	pointer-events: none;
+	animation: sortir 0.25s ease-in both;
+}
+
+@keyframes sortir {
+	to {
+		opacity: 0;
+		transform: translateY(-8px);
+	}
+}
+
+.meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 18px;
+	color: var(--texte-2);
+
+	span {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+	}
+}
+
+.accroche {
+	max-width: 540px;
+	margin: 0;
+	font-size: 1.06rem;
+	line-height: 1.6;
+	opacity: 0.9;
+}
+
+.actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-top: 6px;
+}
+
+// ------------------------------------------------------------------ commandes : jauges type « stories »
+.commandes {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	padding-bottom: 32px;
+}
+
+.indicateurs {
+	display: flex;
+	gap: 6px;
+}
+
+.indicateur {
+	width: 52px;
+	padding: 10px 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+
+	&:hover .jauge {
+		background: rgb(244 238 230 / 40%);
+	}
+}
+
+.jauge {
+	display: block;
+	height: 4px;
+	overflow: hidden;
+	border-radius: 999px;
+	background: rgb(244 238 230 / 22%);
+	transition: background var(--transition);
+
+	.vu & {
+		background: rgb(244 238 230 / 70%);
+	}
+}
+
+.jauge-remplissage {
+	display: block;
+	width: 100%;
+	height: 100%;
+	border-radius: inherit;
+	background: var(--accent);
+
+	&.anime {
+		transform-origin: left;
+		animation: remplir var(--duree-diapo) linear both;
+	}
+
+	&.en-pause {
+		animation-play-state: paused;
+	}
+}
+
+@keyframes remplir {
+	from {
+		transform: scaleX(0);
+	}
+
+	to {
+		transform: scaleX(1);
+	}
+}
+
+.compteur {
+	color: var(--texte-2);
+	font-size: 0.85rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.navigation {
+	display: flex;
+	gap: 8px;
+	margin-left: auto;
+}
+
+// ------------------------------------------------------------------ tablette et mobile : affiche d'abord
+@media (max-width: v.$bp-tablette) {
+	.carrousel {
+		--largeur-affiche: clamp(150px, 42vw, 210px);
+		min-height: 0;
+	}
+
+	.scene {
+		grid-template-columns: 1fr;
+		gap: 24px;
+		padding-top: 28px;
+	}
+
+	.affiches {
+		grid-column: 1;
+		justify-self: center;
+	}
+
+	.contenu {
+		grid-row: 2;
+	}
+
+	.navigation {
+		display: none;
+	}
+
+	.indicateurs {
+		flex: 1;
+	}
+
+	.indicateur {
+		flex: 1;
+		width: auto;
+	}
+}

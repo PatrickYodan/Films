@@ -1,0 +1,31 @@
+@if (chargement() || films().length) {
+	<section class="rail" [attr.aria-label]="titre()">
+		<div class="section-entete">
+			<h2>{{ titre() }}</h2>
+			<div class="outils">
+				@if (lienToutVoir()) {
+					<a [routerLink]="lienToutVoir()" [queryParams]="paramsToutVoir()">Tout voir <app-icone nom="chevron-droite" [taille]="16" /></a>
+				}
+				@if (!chargement()) {
+					<div class="fleches">
+						<button type="button" class="btn btn-secondaire btn-icone btn-sm" aria-label="Films précédents" [disabled]="debut()" (click)="defiler(-1)">
+							<app-icone nom="chevron-gauche" [taille]="18" />
+						</button>
+						<button type="button" class="btn btn-secondaire btn-icone btn-sm" aria-label="Films suivants" [disabled]="fin()" (click)="defiler(1)">
+							<app-icone nom="chevron-droite" [taille]="18" />
+						</button>
+					</div>
+				}
+			</div>
+		</div>
+		@if (chargement()) {
+			<app-squelette type="rail" [nombre]="7" />
+		} @else {
+			<div #liste class="rail-liste" (scroll)="majPosition()">
+				@for (film of films(); track film.id) {
+					<app-film-card [film]="film" />
+				}
+			</div>
+		}
+	</section>
+}

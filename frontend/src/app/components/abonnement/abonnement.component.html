@@ -1,0 +1,160 @@
+<div class="conteneur page">
+	<div class="entete">
+		<span class="surtitre">Abonnement</span>
+		<h1 class="titre-page">Choisissez votre pass</h1>
+		<p class="texte-secondaire">Sans engagement, sans renouvellement automatique.</p>
+	</div>
+
+	<ol class="progression-etapes" aria-label="Étapes">
+		@for (e of etapes; track e; let i = $index) {
+			<li [class.faite]="i < etapeIndex()" [class.courante]="i === etapeIndex()" [attr.aria-current]="i === etapeIndex() ? 'step' : null">
+				<span class="rond">
+					@if (i < etapeIndex()) {
+						<app-icone nom="check" [taille]="14" [epaisseur]="2.6" />
+					} @else {
+						{{ i + 1 }}
+					}
+				</span>
+				<span class="nom-etape">{{ e }}</span>
+			</li>
+		}
+	</ol>
+
+	@if (abonnement(); as a) {
+		<p class="message-info"><app-icone nom="info" [taille]="18" /><span>Votre <strong>{{ a.pass.nom }}</strong> est actif jusqu'au {{ a.dateFin | date: 'd MMMM y, HH:mm' }}. Un nouveau pass prolongera cette date.</span></p>
+	}
+
+	@switch (etape()) {
+		@case ('saisie') {
+			<div class="mise-en-page apparition">
+				<div class="sections">
+					<section>
+						<h2 class="titre-section"><span class="numero">1</span>Votre pass</h2>
+						<div class="grille-pass">
+							@if (passList() === undefined) {
+								@for (i of attentePass; track i) {
+									<div class="squelette pass-attente"></div>
+								}
+							} @else {
+								@for (pass of passList(); track pass.code) {
+									<button type="button" class="option pass" [class.selectionnee]="passChoisi()?.code === pass.code" [attr.aria-pressed]="passChoisi()?.code === pass.code" (click)="codePass.set(pass.code)">
+										<span class="option-coche"><app-icone nom="check" [taille]="13" [epaisseur]="2.6" /></span>
+										@if (pass.etiquette) {
+											<span class="badge" [class.badge-plein]="pass.etiquette === 'Le plus choisi'">{{ pass.etiquette }}</span>
+										}
+										<strong class="pass-nom">{{ pass.nom }}</strong>
+										<span class="prix">{{ formaterFcfa(pass.prixFcfa) }}</span>
+										<ul class="pass-details">
+											<li><app-icone nom="horloge" [taille]="15" />{{ formaterDureePass(pass.dureeHeures) }}</li>
+											<li><app-icone nom="appareils" [taille]="15" />{{ pass.ecransMax }} écran{{ pass.ecransMax > 1 ? 's' : '' }}</li>
+											<li><app-icone nom="signal" [taille]="15" />{{ libelleQualite(pass) }}</li>
+										</ul>
+									</button>
+								} @empty {
+									<p class="texte-secondaire">Aucun pass disponible pour le moment.</p>
+								}
+							}
+						</div>
+					</section>
+
+					<section>
+						<h2 class="titre-section"><span class="numero">2</span>Moyen de paiement</h2>
+						<div class="grille-moyens">
+							@for (m of moyens; track m.code) {
+								<button type="button" class="option moyen" [class.selectionnee]="moyen() === m.code" [attr.aria-pressed]="moyen() === m.code" (click)="moyen.set(m.code)">
+									<span class="moyen-icone" [style.--couleur]="m.couleur"><app-icone [nom]="m.mobileMoney ? 'telephone' : 'carte'" [taille]="20" /></span>
+									<span class="moyen-nom">{{ m.libelle }}</span>
+									<span class="option-coche"><app-icone nom="check" [taille]="13" [epaisseur]="2.6" /></span>
+								</button>
+							}
+						</div>
+					</section>
+
+					@if (moyenChoisi().mobileMoney) {
+						<section class="apparition">
+							<h2 class="titre-section"><span class="numero">3</span>Votre numéro</h2>
+							<label class="libelle" for="telephone">Numéro {{ moyenChoisi().libelle }}</label>
+							<div class="champ-groupe numero-champ">
+								<app-icone nom="telephone" [taille]="18" />
+								<input id="telephone" type="tel" class="champ" autocomplete="tel" [formControl]="telephone" />
+							</div>
+							<span class="aide">Vous recevrez une demande de confirmation sur ce téléphone.</span>
+						</section>
+					}
+				</div>
+
+				<aside class="carte-surface recapitulatif">
+					<h2>Récapitulatif</h2>
+					@if (passChoisi(); as pass) {
+						<dl>
+							<dt>Pass</dt>
+							<dd>{{ pass.nom }}</dd>
+							<dt>Durée</dt>
+							<dd>{{ formaterDureePass(pass.dureeHeures) }}</dd>
+							<dt>Paiement</dt>
+							<dd>{{ moyenChoisi().libelle }}</dd>
+						</dl>
+						<div class="total">
+							<span>Total</span>
+							<strong>{{ formaterFcfa(pass.prixFcfa) }}</strong>
+						</div>
+						@if (erreur()) {
+							<p class="message-erreur"><app-icone nom="alerte" [taille]="18" />{{ erreur() }}</p>
+						}
+						<button type="button" class="btn btn-principal btn-lg btn-bloc" [disabled]="envoiEnCours()" (click)="payer()">
+							<app-icone nom="cadenas" [taille]="18" />{{ envoiEnCours() ? 'Envoi…' : 'Payer ' + formaterFcfa(pass.prixFcfa) }}
+						</button>
+						<p class="aide centre">Paiement sécurisé · aucun renouvellement automatique</p>
+					} @else {
+						<div class="squelette total-attente"></div>
+					}
+				</aside>
+			</div>
+		}
+		@case ('attente') {
+			<section class="carte-surface ecran-statut apparition">
+				<div class="telephone-anime" aria-hidden="true">
+					<span class="onde"></span>
+					<span class="onde"></span>
+					<app-icone nom="telephone" [taille]="34" />
+				</div>
+				<h2>Confirmez le paiement sur votre téléphone</h2>
+				<p class="texte-secondaire">
+					Une demande de {{ formaterFcfa(paiement()?.montantFcfa ?? 0) }} a été envoyée{{ paiement()?.telephone ? ' au ' + paiement()?.telephone : '' }}.
+					Saisissez votre code secret pour valider.
+				</p>
+				<ul class="suivi">
+					<li class="fait"><span class="puce-suivi"><app-icone nom="check" [taille]="13" [epaisseur]="2.6" /></span>Demande envoyée</li>
+					<li class="encours"><span class="puce-suivi"><span class="mini-rotation"></span></span>Validation sur votre téléphone</li>
+					<li><span class="puce-suivi"></span>Activation de votre pass</li>
+				</ul>
+				@if (paiement()?.modeTest) {
+					<p class="message-info test"><app-icone nom="info" [taille]="18" /><span><strong>Mode test</strong> : aucun argent réel ne circule. Le paiement sera confirmé automatiquement dans quelques secondes (un numéro se terminant par 00 simule un refus).</span></p>
+				}
+				<p class="aide">Référence : {{ paiement()?.reference }}</p>
+			</section>
+		}
+		@case ('confirme') {
+			<section class="carte-surface ecran-statut apparition">
+				<span class="pastille-icone grande succes"><app-icone nom="succes" [taille]="32" /></span>
+				<h2>Paiement confirmé, bon film !</h2>
+				@if (abonnement(); as a) {
+					<p class="texte-secondaire">Votre {{ a.pass.nom }} est actif jusqu'au {{ a.dateFin | date: 'd MMMM y, HH:mm' }}.</p>
+				}
+				@if (retourSur(); as retour) {
+					<a class="btn btn-principal btn-lg" [routerLink]="retour"><app-icone nom="lecture" [taille]="18" [epaisseur]="2" />Regarder maintenant</a>
+				} @else {
+					<a class="btn btn-principal btn-lg" routerLink="/catalogue"><app-icone nom="film" [taille]="18" />Choisir un film</a>
+				}
+			</section>
+		}
+		@case ('echec') {
+			<section class="carte-surface ecran-statut apparition">
+				<span class="pastille-icone grande danger"><app-icone nom="alerte" [taille]="30" /></span>
+				<h2>Le paiement n'a pas abouti</h2>
+				<p class="texte-secondaire">{{ erreur() ?? 'Le paiement a été refusé ou a expiré. Aucun montant n’a été débité.' }}</p>
+				<button type="button" class="btn btn-principal" (click)="recommencer()"><app-icone nom="recharger" [taille]="18" />Réessayer</button>
+			</section>
+		}
+	}
+</div>

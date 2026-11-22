@@ -1,0 +1,17 @@
+<dialog #dialogue class="dialogue" aria-labelledby="dialogue-titre" (cancel)="$event.preventDefault(); repondre(false)" (click)="clicFond($event)">
+	@if (service.demande(); as d) {
+		<div class="contenu">
+			<span class="pastille-icone" [class.danger]="d.danger">
+				<app-icone [nom]="d.danger ? 'alerte' : 'info'" [taille]="22" />
+			</span>
+			<h2 id="dialogue-titre">{{ d.titre }}</h2>
+			<p>{{ d.message }}</p>
+			<div class="actions">
+				<button type="button" class="btn btn-fantome" (click)="repondre(false)" autofocus>Annuler</button>
+				<button type="button" class="btn" [class.btn-danger-plein]="d.danger" [class.btn-principal]="!d.danger" (click)="repondre(true)">
+					{{ d.libelleConfirmer ?? 'Confirmer' }}
+				</button>
+			</div>
+		</div>
+	}
+</dialog>

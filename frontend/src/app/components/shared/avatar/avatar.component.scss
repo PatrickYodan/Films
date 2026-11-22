@@ -1,0 +1,39 @@
+:host {
+	--taille: 34px;
+	display: inline-grid;
+	place-items: center;
+	width: var(--taille);
+	height: var(--taille);
+	flex-shrink: 0;
+	border-radius: 50%;
+	overflow: hidden;
+	// Fond par défaut quand il n'y a pas de photo (sans ombre : un simple liseré)
+	background: linear-gradient(140deg, var(--accent-clair), var(--accent-fonce));
+	border: 1.5px solid var(--bordure);
+	color: var(--fond);
+}
+
+:host(.grand) {
+	--taille: 112px;
+	border-width: 2px;
+}
+
+img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	animation: fondu 0.3s ease;
+}
+
+@keyframes fondu {
+	from {
+		opacity: 0;
+	}
+}
+
+.initiales {
+	font-family: var(--police-titre);
+	font-size: calc(var(--taille) * 0.38);
+	font-weight: 800;
+	letter-spacing: 0.02em;
+}

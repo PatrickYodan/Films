@@ -1,0 +1,67 @@
+@if (vedettes() === undefined) {
+	<app-squelette type="hero" />
+} @else if (vedettes()?.length) {
+	<app-hero-carrousel [films]="vedettes()!" />
+} @else {
+	<section class="hero hero-vide">
+		<div class="conteneur hero-contenu apparition">
+			<span class="surtitre">NGOMA</span>
+			<h1>Le cinéma africain, partout.</h1>
+			<p class="accroche">Des films de tout le continent, en streaming, même en 3G.</p>
+			<div class="hero-actions">
+				<a class="btn btn-principal btn-lg" routerLink="/catalogue"><app-icone nom="film" [taille]="18" />Explorer le catalogue</a>
+			</div>
+		</div>
+	</section>
+}
+
+<div class="conteneur">
+	@if (passMoinsCher(); as pass) {
+		<section class="pass carte-surface apparition">
+			<span class="pastille-icone grande"><app-icone nom="ticket" [taille]="30" /></span>
+			<div class="pass-texte">
+				<span class="surtitre">Sans engagement</span>
+				<h2>Pass dès {{ formaterFcfa(pass.prixFcfa) }}</h2>
+				<p>Un jour, une semaine ou un mois. Payez avec votre téléphone.</p>
+				<div class="moyens">
+					@for (m of moyens; track m.code) {
+						<span class="moyen"><i [style.background]="m.couleur"></i>{{ m.libelle }}</span>
+					}
+				</div>
+			</div>
+			<a class="btn btn-principal" routerLink="/abonnement">Choisir mon pass<app-icone nom="fleche-droite" [taille]="18" /></a>
+		</section>
+	}
+
+	<section class="pays">
+		<div class="section-entete"><h2>Explorer par pays</h2></div>
+		<div class="puces-defilantes">
+			@if (pays() === undefined) {
+				@for (i of attentePays; track i) {
+					<span class="squelette pays-attente"></span>
+				}
+			} @else {
+				@for (p of pays(); track p.code) {
+					<a class="puce pays-puce" [routerLink]="['/pays', p.code]"><span class="code">{{ p.code }}</span>{{ p.nom }}</a>
+				}
+			}
+		</div>
+	</section>
+
+	<app-film-rail titre="Nouveautés" [films]="nouveautes() ?? []" [chargement]="nouveautes() === undefined" lienToutVoir="/catalogue" />
+	<app-film-rail [titre]="titrePaysEnAvant()" [films]="filmsPaysEnAvant() ?? []" [chargement]="filmsPaysEnAvant() === undefined" lienToutVoir="/pays/CI" />
+	<app-film-rail titre="Gratuits" [films]="gratuits() ?? []" [chargement]="gratuits() === undefined" lienToutVoir="/gratuit" />
+
+	<section class="atouts">
+		<div class="section-entete"><h2>Pensé pour regarder partout</h2></div>
+		<div class="atouts-grille">
+			@for (atout of atouts; track atout.titre) {
+				<div class="atout">
+					<span class="pastille-icone"><app-icone [nom]="atout.icone" [taille]="22" /></span>
+					<h3>{{ atout.titre }}</h3>
+					<p>{{ atout.texte }}</p>
+				</div>
+			}
+		</div>
+	</section>
+</div>

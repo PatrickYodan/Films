@@ -1,0 +1,44 @@
+@use 'styles/variables' as v;
+
+.rail {
+	margin: 48px 0;
+}
+
+.outils {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.fleches {
+	display: flex;
+	gap: 6px;
+
+	@media (hover: none), (max-width: v.$bp-mobile) {
+		display: none;
+	}
+}
+
+.rail-liste {
+	display: grid;
+	grid-auto-flow: column;
+	grid-auto-columns: minmax(150px, 180px);
+	gap: 18px;
+	overflow-x: auto;
+	padding: 4px 0 12px;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: none;
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+
+	> * {
+		scroll-snap-align: start;
+	}
+
+	@media (max-width: v.$bp-mobile) {
+		grid-auto-columns: 138px;
+		gap: 12px;
+	}
+}

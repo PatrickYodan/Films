@@ -1,0 +1,109 @@
+<div class="conteneur page">
+	@if (film(); as f) {
+		<!-- Zone du lecteur : largeur limitée pour que la vidéo tienne entière dans la hauteur de l'écran -->
+		<div class="zone">
+		<a class="lien-retour" [routerLink]="['/film', f.slug]"><app-icone nom="fleche-gauche" [taille]="16" />Retour à la fiche</a>
+		<div class="ecran">
+			@if (etat() === 'pret') {
+				<video #video class="video" controls playsinline crossorigin="anonymous" [attr.poster]="f.bandeauUrl || f.afficheUrl" [attr.aria-label]="'Lecture de ' + f.titre" (loadedmetadata)="appliquerAuChargement()">
+					@for (piste of pistes(); track piste.langue) {
+						<track kind="subtitles" [attr.src]="piste.url" [attr.srclang]="piste.langue" [attr.label]="piste.libelle" />
+					}
+				</video>
+			} @else {
+				@if (f.bandeauUrl || f.afficheUrl) {
+					<img class="ecran-image" [src]="f.bandeauUrl || f.afficheUrl" alt="" />
+				}
+				<div class="ecran-voile">
+					@switch (etat()) {
+						@case ('pass') {
+							<span class="pastille-icone grande"><app-icone nom="ticket" [taille]="30" /></span>
+							<h2>Un pass est nécessaire pour regarder ce film</h2>
+							<p class="texte-secondaire">Pass Jour, Semaine ou Mois, payable par Mobile Money. Vous reviendrez ici après le paiement.</p>
+							<a class="btn btn-principal" routerLink="/abonnement" [queryParams]="{ retour: '/regarder/' + f.slug }">
+								Choisir mon pass<app-icone nom="fleche-droite" [taille]="18" />
+							</a>
+						}
+						@case ('indisponible') {
+							<span class="pastille-icone grande neutre"><app-icone nom="video" [taille]="30" /></span>
+							<h2>Vidéo bientôt disponible</h2>
+							<p class="texte-secondaire">Ce film n'a pas encore été mis en ligne. Revenez bientôt.</p>
+						}
+						@case ('erreur') {
+							<span class="pastille-icone grande danger"><app-icone nom="alerte" [taille]="30" /></span>
+							<h2>Lecture impossible</h2>
+							<p class="texte-secondaire">{{ erreur() }}</p>
+							<button type="button" class="btn btn-secondaire" (click)="reessayer()"><app-icone nom="recharger" [taille]="18" />Réessayer</button>
+						}
+						@default {
+							<app-chargement texte="Préparation de la lecture…" />
+						}
+					}
+				</div>
+			}
+		</div>
+
+		@if (etat() === 'pret') {
+			<!-- Toujours visible pendant la lecture : on voit les options même quand le film n'en propose qu'une -->
+			<div class="barre-qualite">
+				<div class="groupe">
+					<span class="texte-secondaire"><app-icone nom="sous-titres" [taille]="16" />Sous-titres</span>
+					@if (pistes().length) {
+						<div class="segments" role="group" aria-label="Sous-titres">
+							<button type="button" class="segment" [class.actif]="sousTitreAffiche() === aucun" [attr.aria-pressed]="sousTitreAffiche() === aucun" (click)="choisirSousTitre(aucun)">
+								Désactivés
+							</button>
+							@for (p of pistes(); track p.langue) {
+								<button type="button" class="segment" [class.actif]="sousTitreAffiche() === p.langue" [attr.aria-pressed]="sousTitreAffiche() === p.langue" (click)="choisirSousTitre(p.langue)">
+									{{ p.libelle }}
+								</button>
+							}
+						</div>
+					} @else {
+						<span class="indisponible">Aucun sous-titre pour ce film</span>
+					}
+				</div>
+				<div class="groupe">
+					<span class="texte-secondaire"><app-icone nom="signal" [taille]="16" />Qualité</span>
+					<div class="segments" role="group" aria-label="Qualité de lecture">
+						@for (q of qualites(); track q.code) {
+							<button
+								type="button"
+								class="segment"
+								[class.actif]="q.code === lecture()?.qualite"
+								[attr.aria-pressed]="q.code === lecture()?.qualite"
+								[disabled]="qualites().length === 1"
+								(click)="changerQualite(q.code)"
+							>
+								{{ q.libelle }}
+							</button>
+						}
+					</div>
+				</div>
+			</div>
+		}
+
+		<div class="sous-ecran">
+			<h1>{{ f.titre }}</h1>
+			<p class="texte-secondaire">{{ meta() }}</p>
+		</div>
+
+		@if (demo) {
+			<p class="credit">
+				<app-icone nom="info" [taille]="15" />
+				Vidéo de démonstration : films libres de la Blender Foundation (Big Buck Bunny, Elephants Dream, Tears of Steel ;
+				licences Creative Commons BY), sans rapport avec le film présenté.
+			</p>
+		}
+		</div>
+	} @else if (introuvable()) {
+		<div class="etat-vide">
+			<span class="pastille-icone grande neutre"><app-icone nom="film" [taille]="30" /></span>
+			<h1>Film introuvable</h1>
+			<p>Ce film n'existe pas ou n'est plus disponible.</p>
+			<a class="btn btn-principal" routerLink="/catalogue">Retour au catalogue</a>
+		</div>
+	} @else {
+		<app-chargement [plein]="true" texte="Préparation de la lecture…" />
+	}
+</div>

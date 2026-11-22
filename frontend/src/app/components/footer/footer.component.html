@@ -1,0 +1,56 @@
+<footer class="pied">
+	<div class="conteneur grille">
+		<div class="marque">
+			<a routerLink="/" class="logo">
+				<span class="logo-marque"><app-icone nom="tambour" [taille]="18" [epaisseur]="2" /></span>
+				NGOMA
+			</a>
+			<p>Le cinéma africain, partout, même en 3G.</p>
+			<div class="moyens" aria-label="Moyens de paiement acceptés">
+				@for (m of moyens; track m.code) {
+					<span class="moyen"><i [style.background]="m.couleur"></i>{{ m.libelle }}</span>
+				}
+			</div>
+		</div>
+		<nav aria-label="Découvrir">
+			<h2>Découvrir</h2>
+			<a routerLink="/catalogue">Catalogue</a>
+			<a routerLink="/gratuit">Films gratuits</a>
+			<a routerLink="/abonnement">Nos pass</a>
+		</nav>
+		<nav aria-label="Mon espace">
+			<h2>Mon espace</h2>
+			@if (authService.connecte()) {
+				<a routerLink="/mon-compte">Mon compte</a>
+				<a routerLink="/abonnement">Mon pass</a>
+				@if (estAdmin()) {
+					<a routerLink="/admin">Administration</a>
+				}
+			} @else {
+				<a routerLink="/connexion">Se connecter</a>
+				<a routerLink="/inscription">Créer un compte</a>
+			}
+		</nav>
+		@if (reseaux.length) {
+			<div class="suivre">
+				<h2>Suivez-nous</h2>
+				<div class="reseaux">
+					@for (r of reseaux; track r.nom) {
+						<a
+							class="reseau"
+							[class]="'reseau reseau-' + r.icone"
+							[href]="r.url"
+							target="_blank"
+							rel="noopener noreferrer"
+							[attr.aria-label]="'NGOMA sur ' + r.nom + ' (nouvel onglet)'"
+							[title]="r.nom"
+						>
+							<app-icone [nom]="r.icone" [taille]="20" />
+						</a>
+					}
+				</div>
+			</div>
+		}
+	</div>
+	<div class="conteneur bas">© {{ annee }} NGOMA · Films africains en streaming</div>
+</footer>

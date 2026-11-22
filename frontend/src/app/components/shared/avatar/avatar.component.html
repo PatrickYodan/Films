@@ -1,0 +1,6 @@
+@if (photoUrl()) {
+	<img [src]="photoUrl()" [alt]="'Photo de ' + nom()" />
+} @else {
+	<span class="initiales" aria-hidden="true">{{ initiales() }}</span>
+	<span class="sr-only">{{ nom() }}</span>
+}

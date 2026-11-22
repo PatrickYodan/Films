@@ -1,0 +1,42 @@
+@use 'styles/variables' as v;
+
+.entete {
+	margin-bottom: 24px;
+}
+
+.compteur {
+	min-height: 1.5em;
+	margin: 6px 0 0;
+}
+
+.filtres {
+	display: grid;
+	gap: 14px;
+	margin-bottom: 32px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid var(--bordure-douce);
+}
+
+.filtres-ligne {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px 20px;
+}
+
+.recherche {
+	flex: 1 1 260px;
+	max-width: 420px;
+}
+
+.pays {
+	flex: 0 1 240px;
+}
+
+@media (max-width: v.$bp-mobile) {
+	.recherche,
+	.pays {
+		flex-basis: 100%;
+		max-width: none;
+	}
+}

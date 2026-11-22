@@ -1,0 +1,22 @@
+<a class="lien-evitement" href="#contenu">Aller au contenu</a>
+<app-barre-chargement />
+<app-header />
+
+<main id="contenu" class="main-content" tabindex="-1">
+	<router-outlet />
+</main>
+
+<app-footer />
+<app-dialogue-confirmation />
+
+<div class="toasts" aria-live="polite">
+	@for (message of messageService.messages(); track message.id) {
+		<div class="toast" [class]="'toast toast-' + message.type" role="status">
+			<app-icone class="toast-icone" [nom]="icones[message.type]" [taille]="20" />
+			<span class="toast-texte">{{ message.texte }}</span>
+			<button type="button" class="toast-fermer" aria-label="Fermer" (click)="messageService.fermer(message.id)">
+				<app-icone nom="fermer" [taille]="16" />
+			</button>
+		</div>
+	}
+</div>

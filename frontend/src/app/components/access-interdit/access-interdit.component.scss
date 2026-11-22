@@ -1,0 +1,16 @@
+.code {
+	font-family: var(--police-titre);
+	font-size: clamp(4rem, 12vw, 7rem);
+	font-weight: 800;
+	line-height: 1;
+	color: var(--surface-3);
+	letter-spacing: 0.04em;
+}
+
+.boutons {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 8px;
+}

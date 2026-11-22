@@ -1,0 +1,81 @@
+<div class="conteneur auth">
+	<aside class="auth-visuel" aria-hidden="true">
+		<app-icone class="auth-motif" nom="tambour" [taille]="340" [epaisseur]="0.5" />
+		<span class="surtitre">NGOMA</span>
+		<h2>Rejoignez NGOMA en une minute.</h2>
+		<ul>
+			<li><app-icone nom="check" [taille]="18" [epaisseur]="2.2" />Des films de tout le continent</li>
+			<li><app-icone nom="check" [taille]="18" [epaisseur]="2.2" />Paiement Orange Money, MTN, Wave, Moov</li>
+			<li><app-icone nom="check" [taille]="18" [epaisseur]="2.2" />Mode économie de données pour la 3G</li>
+		</ul>
+	</aside>
+
+	<div class="auth-formulaire apparition">
+		<h1>Créer un compte</h1>
+		<p>Gratuit. Vous choisirez un pass seulement quand vous voudrez regarder.</p>
+
+		<form [formGroup]="formulaire" (ngSubmit)="inscrire()" novalidate>
+			<label class="libelle" for="nom">Nom complet</label>
+			<div class="champ-groupe">
+				<app-icone nom="utilisateur" [taille]="18" />
+				<input id="nom" class="champ" autocomplete="name" formControlName="nom" />
+			</div>
+			@if (formulaire.controls.nom.touched && formulaire.controls.nom.invalid) {
+				<span class="erreur-champ">Saisissez votre nom.</span>
+			}
+
+			<label class="libelle" for="email">Adresse e-mail</label>
+			<div class="champ-groupe">
+				<app-icone nom="email" [taille]="18" />
+				<input id="email" type="email" class="champ" autocomplete="email" placeholder="vous@exemple.com" formControlName="email" />
+			</div>
+			@if (formulaire.controls.email.touched && formulaire.controls.email.invalid) {
+				<span class="erreur-champ">Saisissez une adresse e-mail valide.</span>
+			}
+
+			<label class="libelle" for="telephone">Téléphone <span class="optionnel">(facultatif)</span></label>
+			<div class="champ-groupe">
+				<app-icone nom="telephone" [taille]="18" />
+				<input id="telephone" type="tel" class="champ" autocomplete="tel" placeholder="+225 07 00 00 00 00" formControlName="telephone" />
+			</div>
+			@if (formulaire.controls.telephone.touched && formulaire.controls.telephone.invalid) {
+				<span class="erreur-champ">Numéro de téléphone invalide.</span>
+			}
+
+			<label class="libelle" for="motDePasse">Mot de passe</label>
+			<div class="champ-groupe">
+				<app-icone nom="cadenas" [taille]="18" />
+				<input id="motDePasse" class="champ" [type]="motDePasseVisible() ? 'text' : 'password'" autocomplete="new-password" formControlName="motDePasse" />
+				<button type="button" class="btn btn-fantome btn-icone btn-sm champ-action" [attr.aria-label]="motDePasseVisible() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'" (click)="motDePasseVisible.set(!motDePasseVisible())">
+					<app-icone [nom]="motDePasseVisible() ? 'oeil-barre' : 'oeil'" [taille]="18" />
+				</button>
+			</div>
+			@if (formulaire.controls.motDePasse.touched && formulaire.controls.motDePasse.invalid) {
+				<span class="erreur-champ">8 caractères minimum.</span>
+			} @else {
+				<span class="aide">8 caractères minimum.</span>
+			}
+
+			<label class="libelle" for="confirmation">Confirmer le mot de passe</label>
+			<div class="champ-groupe">
+				<app-icone nom="cadenas" [taille]="18" />
+				<input id="confirmation" class="champ" [type]="motDePasseVisible() ? 'text' : 'password'" autocomplete="new-password" formControlName="confirmation" />
+				<button type="button" class="btn btn-fantome btn-icone btn-sm champ-action" [attr.aria-label]="motDePasseVisible() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'" (click)="motDePasseVisible.set(!motDePasseVisible())">
+					<app-icone [nom]="motDePasseVisible() ? 'oeil-barre' : 'oeil'" [taille]="18" />
+				</button>
+			</div>
+			@if (formulaire.controls.confirmation.touched && formulaire.hasError('correspondance')) {
+				<span class="erreur-champ">Les mots de passe ne correspondent pas.</span>
+			}
+
+			@if (erreur()) {
+				<p class="message-erreur" role="alert"><app-icone nom="alerte" [taille]="18" />{{ erreur() }}</p>
+			}
+
+			<button type="submit" class="btn btn-principal btn-lg btn-bloc" [disabled]="envoiEnCours()">
+				{{ envoiEnCours() ? 'Création…' : 'Créer mon compte' }}
+			</button>
+		</form>
+		<p class="bas">Déjà inscrit ? <a class="lien" routerLink="/connexion" [queryParams]="{ retour: retour() }">Se connecter</a></p>
+	</div>
+</div>

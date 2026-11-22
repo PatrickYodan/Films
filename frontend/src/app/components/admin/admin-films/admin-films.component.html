@@ -1,0 +1,117 @@
+<div class="section-entete">
+	<div>
+		<h1 class="titre-page">Films</h1>
+		<p class="texte-secondaire sous-titre">
+			@if (resultat(); as r) {
+				{{ r.total }} film{{ r.total > 1 ? 's' : '' }}
+			} @else {
+				Catalogue complet, brouillons compris
+			}
+		</p>
+	</div>
+	<a class="btn btn-principal" routerLink="/admin/films/nouveau"><app-icone nom="plus" [taille]="18" [epaisseur]="2.2" />Ajouter un film</a>
+</div>
+
+<div class="outils">
+	<label class="champ-groupe recherche">
+		<app-icone nom="recherche" [taille]="18" />
+		<input type="search" class="champ" placeholder="Rechercher par titre" aria-label="Rechercher par titre" [value]="motCle()" (change)="rechercher(valeur($event))" />
+	</label>
+	<div class="segments" role="group" aria-label="Statut">
+		<button type="button" class="segment" [class.actif]="!statut()" (click)="filtrerStatut('')">Tous</button>
+		@for (s of statuts; track s.code) {
+			<button type="button" class="segment" [class.actif]="statut() === s.code" (click)="filtrerStatut(s.code)">{{ s.code === 'PUBLIE' ? 'Publiés' : 'Brouillons' }}</button>
+		}
+	</div>
+</div>
+
+@if (erreur()) {
+	<div class="etat-vide">
+		<span class="pastille-icone grande danger"><app-icone nom="alerte" [taille]="28" /></span>
+		<h2>Chargement impossible</h2>
+		<p>{{ erreur() }}</p>
+	</div>
+} @else if (!resultat() && chargement()) {
+	<app-squelette type="tableau" [nombre]="6" />
+} @else if (resultat(); as r) {
+	@if (r.contenu.length) {
+		<div class="tableau-conteneur" [class.recharge]="chargement()">
+			<table class="tableau">
+				<thead>
+					<tr>
+						<th scope="col">Film</th>
+						<th scope="col" class="col-pays">Pays</th>
+						<th scope="col" class="col-genres">Genres</th>
+						<th scope="col">Statut</th>
+						<th scope="col" class="col-date">Modifié le</th>
+						<th scope="col"><span class="sr-only">Actions</span></th>
+					</tr>
+				</thead>
+				<tbody>
+					@for (film of r.contenu; track film.id) {
+						<tr>
+							<td>
+								<a class="film" [routerLink]="['/admin/films', film.id]">
+									@if (film.afficheUrl) {
+										<img class="miniature" [src]="film.afficheUrl" alt="" loading="lazy" />
+									} @else {
+										<span class="miniature miniature-vide"><app-icone nom="image" [taille]="16" /></span>
+									}
+									<span>
+										<strong>{{ film.titre }}</strong>
+										<small>{{ film.annee }}{{ film.annee ? ' · ' : '' }}{{ film.type === 'SERIE' ? 'Série' : 'Film' }}</small>
+									</span>
+								</a>
+							</td>
+							<td class="col-pays">{{ film.pays.join(', ') }}</td>
+							<td class="col-genres">{{ film.genres.join(', ') }}</td>
+							<td>
+								<span class="statut" [class.publie]="film.statut === 'PUBLIE'" [class.brouillon]="film.statut !== 'PUBLIE'">
+									{{ film.statut === 'PUBLIE' ? 'Publié' : 'Brouillon' }}
+								</span>
+							</td>
+							<td class="col-date">{{ film.modifieLe | date: 'd MMM y, HH:mm' }}</td>
+							<td>
+								<div class="actions">
+									<a class="btn btn-fantome btn-icone btn-sm" [routerLink]="['/admin/films', film.id]" title="Modifier" [attr.aria-label]="'Modifier ' + film.titre">
+										<app-icone nom="modifier" [taille]="17" />
+									</a>
+									@if (film.statut === 'PUBLIE') {
+										<button type="button" class="btn btn-fantome btn-icone btn-sm" title="Dépublier" [attr.aria-label]="'Dépublier ' + film.titre" [disabled]="actionEnCours() === film.id" (click)="depublier(film)">
+											<app-icone nom="oeil-barre" [taille]="17" />
+										</button>
+									} @else {
+										<button type="button" class="btn btn-fantome btn-icone btn-sm" title="Publier" [attr.aria-label]="'Publier ' + film.titre" [disabled]="actionEnCours() === film.id" (click)="publier(film)">
+											<app-icone nom="oeil" [taille]="17" />
+										</button>
+									}
+									<button type="button" class="btn btn-fantome btn-icone btn-sm supprimer" title="Supprimer" [attr.aria-label]="'Supprimer ' + film.titre" [disabled]="actionEnCours() === film.id" (click)="supprimer(film)">
+										<app-icone nom="corbeille" [taille]="17" />
+									</button>
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+		@if (r.totalPages > 1) {
+			<nav class="pagination" aria-label="Pagination">
+				<button type="button" class="btn btn-secondaire btn-icone" aria-label="Page précédente" [disabled]="page() === 0" (click)="page.set(page() - 1)">
+					<app-icone nom="chevron-gauche" />
+				</button>
+				<span>Page {{ page() + 1 }} sur {{ r.totalPages }}</span>
+				<button type="button" class="btn btn-secondaire btn-icone" aria-label="Page suivante" [disabled]="page() + 1 >= r.totalPages" (click)="page.set(page() + 1)">
+					<app-icone nom="chevron-droite" />
+				</button>
+			</nav>
+		}
+	} @else {
+		<div class="etat-vide">
+			<span class="pastille-icone grande neutre"><app-icone nom="film" [taille]="28" /></span>
+			<h2>Aucun film</h2>
+			<p>Aucun film ne correspond à ces critères.</p>
+			<a class="btn btn-principal" routerLink="/admin/films/nouveau"><app-icone nom="plus" [taille]="18" />Ajouter un film</a>
+		</div>
+	}
+}

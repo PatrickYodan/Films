@@ -1,0 +1,269 @@
+@use 'styles/variables' as v;
+
+.titre-formulaire {
+	margin-top: 12px;
+}
+
+.bloc {
+	margin-bottom: 20px;
+}
+
+.grille-2 {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0 20px;
+
+	.pleine {
+		grid-column: 1 / -1;
+	}
+
+	@media (max-width: v.$bp-mobile) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.choix {
+	margin: 8px 0 0;
+	padding: 0;
+	border: 0;
+}
+
+.options {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px 32px;
+	margin-top: 24px;
+	padding-top: 20px;
+	border-top: 1px solid var(--bordure-douce);
+}
+
+.images {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+	gap: 24px;
+
+	@media (max-width: v.$bp-mobile) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.image .libelle {
+	margin-top: 0;
+}
+
+.depot {
+	position: relative;
+	display: grid;
+	aspect-ratio: 2 / 3;
+	max-width: 240px;
+	overflow: hidden;
+	border: 1.5px dashed var(--bordure);
+	border-radius: var(--rayon-l);
+	background: var(--surface-2);
+	transition:
+		border-color var(--transition),
+		background var(--transition);
+
+	&.paysage {
+		aspect-ratio: 16 / 9;
+		max-width: none;
+	}
+
+	&.survol,
+	&:hover {
+		border-color: var(--accent);
+	}
+
+	&.survol {
+		background: var(--accent-doux);
+	}
+
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+}
+
+.depot-vide {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 16px;
+	color: var(--texte-3);
+	font-size: 0.85rem;
+	text-align: center;
+	cursor: pointer;
+
+	strong {
+		color: var(--texte);
+		font-size: 0.92rem;
+	}
+}
+
+.remplacer {
+	position: absolute;
+	right: 10px;
+	bottom: 10px;
+}
+
+.depot-progression {
+	position: absolute;
+	inset: auto 0 0;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px;
+	background: rgb(18 16 14 / 85%);
+	font-size: 0.8rem;
+}
+
+// Alignement par le haut : les libellés et les champs restent sur la même ligne même quand une
+// colonne affiche quelque chose en dessous (message d'erreur, bouton d'envoi).
+.ligne {
+	--hauteur-libelle: calc(0.88rem * 1.55 + 7px);
+	display: grid;
+	grid-template-columns: 2fr 1.4fr 2fr auto;
+	gap: 12px;
+	align-items: start;
+	margin-bottom: 14px;
+
+	.libelle {
+		margin-top: 0;
+		white-space: nowrap;
+	}
+
+	@media (max-width: v.$bp-tablette) {
+		grid-template-columns: 1fr;
+		padding-bottom: 14px;
+		border-bottom: 1px solid var(--bordure-douce);
+	}
+}
+
+.envoyer-st {
+	margin-top: 8px;
+}
+
+.desactive {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+// Corbeille centrée sur la hauteur des champs (46 px), sous la ligne des libellés
+.retirer {
+	margin-top: calc(var(--hauteur-libelle) + 3px);
+
+	@media (max-width: v.$bp-tablette) {
+		justify-self: end;
+		margin-top: 0;
+	}
+
+	&:hover {
+		background: var(--erreur-doux);
+		color: var(--erreur);
+	}
+}
+
+.vide {
+	margin: 0 0 14px;
+}
+
+.haut {
+	margin: -6px 0 4px;
+
+	code {
+		color: var(--texte-2);
+	}
+}
+
+.videos {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 8px 16px;
+
+	@media (max-width: v.$bp-tablette) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.video-qualite {
+	padding: 0 10px 12px;
+	border: 1.5px dashed transparent;
+	border-radius: var(--rayon);
+	transition: border-color var(--transition);
+
+	&.survol {
+		border-color: var(--accent);
+		background: var(--accent-doux);
+	}
+}
+
+.actions-video,
+.envoi-video {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px 10px;
+	margin-top: 10px;
+
+	.aide {
+		margin: 0;
+	}
+}
+
+.envoi-video .progression {
+	flex: 1;
+}
+
+.barre-actions {
+	position: sticky;
+	bottom: 16px;
+	z-index: 10;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 14px 16px;
+	border: 1px solid var(--bordure);
+	border-radius: var(--rayon-l);
+	background: rgb(26 23 20 / 94%);
+	backdrop-filter: blur(10px);
+}
+
+.etat-publication {
+	flex: 1 1 280px;
+
+	p {
+		margin: 0;
+	}
+}
+
+.manquants,
+.pret {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: var(--texte-2);
+	font-size: 0.88rem;
+}
+
+.manquants app-icone {
+	color: var(--accent);
+}
+
+.pret app-icone {
+	color: var(--succes);
+}
+
+.recharger {
+	margin-top: 8px;
+}
+
+.boutons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}

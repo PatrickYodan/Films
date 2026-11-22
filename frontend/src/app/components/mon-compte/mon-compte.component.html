@@ -1,0 +1,156 @@
+<div class="conteneur page">
+	<h1 class="titre-page">Mon compte</h1>
+
+	@if (utilisateurService.profil(); as profil) {
+		<input id="photo-fichier" type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="choisirPhoto($event)" />
+
+		<section class="carte-surface identite apparition">
+			<div class="avatar-zone">
+				<app-avatar taille="grand" [nom]="profil.nom" [photoUrl]="utilisateurService.photoUrl()" />
+				<label for="photo-fichier" class="avatar-bouton" [class.desactive]="enCours() === 'photo'" [attr.title]="profil.photo ? 'Changer la photo' : 'Ajouter une photo'">
+					<app-icone nom="photo" [taille]="17" />
+					<span class="sr-only">{{ profil.photo ? 'Changer la photo' : 'Ajouter une photo' }}</span>
+				</label>
+			</div>
+			<div class="identite-texte">
+				<h2>{{ profil.nom }}</h2>
+				<p class="texte-secondaire">{{ profil.email }}</p>
+				<div class="badges">
+					@if (profil.role === 'ADMIN') {
+						<span class="badge badge-plein"><app-icone nom="admin" [taille]="13" [epaisseur]="2" />Administrateur</span>
+					}
+					@if (profil.inscritLe) {
+						<span class="badge badge-contour">Membre depuis {{ profil.inscritLe | date: 'MMMM y' }}</span>
+					}
+				</div>
+				<div class="identite-actions">
+					<label for="photo-fichier" class="btn btn-secondaire btn-sm" [class.desactive]="enCours() === 'photo'">
+						<app-icone nom="envoyer" [taille]="16" />{{ profil.photo ? 'Changer la photo' : 'Ajouter une photo' }}
+					</label>
+					@if (profil.photo) {
+						<button type="button" class="btn btn-fantome btn-sm" [disabled]="enCours() === 'photo'" (click)="retirerPhoto()">
+							<app-icone nom="corbeille" [taille]="16" />Retirer
+						</button>
+					}
+				</div>
+				@if (erreurPhoto()) {
+					<p class="erreur-champ">{{ erreurPhoto() }}</p>
+				} @else {
+					<span class="aide">JPEG, PNG ou WebP, 2 Mo maximum.</span>
+				}
+			</div>
+		</section>
+
+		<div class="grille">
+			<section class="carte-surface">
+				<div class="carte-entete">
+					<span class="pastille-icone"><app-icone nom="utilisateur" /></span>
+					<div><h2>Mes informations</h2><p>Nom et téléphone</p></div>
+				</div>
+				<form [formGroup]="formulaireProfil" (ngSubmit)="enregistrerProfil()">
+					<label class="libelle" for="nom">Nom complet</label>
+					<div class="champ-groupe">
+						<app-icone nom="utilisateur" [taille]="18" />
+						<input id="nom" class="champ" autocomplete="name" formControlName="nom" />
+					</div>
+					@if (formulaireProfil.controls.nom.touched && formulaireProfil.controls.nom.invalid) {
+						<span class="erreur-champ">Saisissez votre nom.</span>
+					}
+
+					<label class="libelle" for="email">Adresse e-mail</label>
+					<div class="champ-groupe">
+						<app-icone nom="email" [taille]="18" />
+						<input id="email" class="champ" [value]="profil.email" disabled />
+					</div>
+
+					<label class="libelle" for="telephone">Téléphone</label>
+					<div class="champ-groupe">
+						<app-icone nom="telephone" [taille]="18" />
+						<input id="telephone" type="tel" class="champ" autocomplete="tel" placeholder="+225 07 00 00 00 00" formControlName="telephone" />
+					</div>
+					@if (formulaireProfil.controls.telephone.touched && formulaireProfil.controls.telephone.invalid) {
+						<span class="erreur-champ">Numéro de téléphone invalide.</span>
+					}
+
+					@if (erreurProfil()) {
+						<p class="message-erreur"><app-icone nom="alerte" [taille]="18" />{{ erreurProfil() }}</p>
+					}
+					<button type="submit" class="btn btn-principal envoyer" [disabled]="enCours() === 'profil' || formulaireProfil.pristine">
+						<app-icone nom="check" [taille]="18" [epaisseur]="2.2" />Enregistrer
+					</button>
+				</form>
+			</section>
+
+			<section class="carte-surface">
+				<div class="carte-entete">
+					<span class="pastille-icone"><app-icone nom="ticket" /></span>
+					<div><h2>Mon pass</h2><p>Accès aux films payants</p></div>
+				</div>
+				@if (abonnement(); as a) {
+					<div class="pass-actif">
+						<div class="pass-ligne">
+							<strong>{{ a.pass.nom }}</strong>
+							<span class="statut publie">Actif</span>
+						</div>
+						<p class="texte-secondaire"><app-icone nom="calendrier" [taille]="16" />Jusqu'au {{ a.dateFin | date: 'd MMMM y, HH:mm' }}</p>
+						<p class="jours">{{ joursRestants(a.dateFin) }} jour{{ joursRestants(a.dateFin) > 1 ? 's' : '' }} restant{{ joursRestants(a.dateFin) > 1 ? 's' : '' }}</p>
+					</div>
+					<a class="btn btn-secondaire" routerLink="/abonnement"><app-icone nom="plus" [taille]="18" />Prolonger</a>
+				} @else {
+					<p class="texte-secondaire">Vous n'avez pas de pass actif. Les films gratuits restent accessibles.</p>
+					<a class="btn btn-principal" routerLink="/abonnement">Choisir un pass<app-icone nom="fleche-droite" [taille]="18" /></a>
+				}
+			</section>
+
+			<section class="carte-surface">
+				<div class="carte-entete">
+					<span class="pastille-icone"><app-icone nom="cadenas" /></span>
+					<div><h2>Mot de passe</h2><p>8 caractères minimum</p></div>
+				</div>
+				<form [formGroup]="formulaireMotDePasse" (ngSubmit)="changerMotDePasse()">
+					<label class="libelle" for="actuel">Mot de passe actuel</label>
+					<div class="champ-groupe">
+				<app-icone nom="cadenas" [taille]="18" />
+				<input id="actuel" class="champ" [type]="motsDePasseVisibles() ? 'text' : 'password'" autocomplete="current-password" formControlName="motDePasseActuel" />
+				<button type="button" class="btn btn-fantome btn-icone btn-sm champ-action" [attr.aria-label]="motsDePasseVisibles() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'" (click)="motsDePasseVisibles.set(!motsDePasseVisibles())">
+					<app-icone [nom]="motsDePasseVisibles() ? 'oeil-barre' : 'oeil'" [taille]="18" />
+				</button>
+			</div>
+
+					<label class="libelle" for="nouveau">Nouveau mot de passe</label>
+					<div class="champ-groupe">
+				<app-icone nom="cadenas" [taille]="18" />
+				<input id="nouveau" class="champ" [type]="motsDePasseVisibles() ? 'text' : 'password'" autocomplete="new-password" formControlName="nouveauMotDePasse" />
+				<button type="button" class="btn btn-fantome btn-icone btn-sm champ-action" [attr.aria-label]="motsDePasseVisibles() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'" (click)="motsDePasseVisibles.set(!motsDePasseVisibles())">
+					<app-icone [nom]="motsDePasseVisibles() ? 'oeil-barre' : 'oeil'" [taille]="18" />
+				</button>
+			</div>
+					@if (formulaireMotDePasse.controls.nouveauMotDePasse.touched && formulaireMotDePasse.controls.nouveauMotDePasse.invalid) {
+						<span class="erreur-champ">8 caractères minimum.</span>
+					}
+
+					<label class="libelle" for="confirmation">Confirmer</label>
+					<div class="champ-groupe">
+				<app-icone nom="cadenas" [taille]="18" />
+				<input id="confirmation" class="champ" [type]="motsDePasseVisibles() ? 'text' : 'password'" autocomplete="new-password" formControlName="confirmation" />
+				<button type="button" class="btn btn-fantome btn-icone btn-sm champ-action" [attr.aria-label]="motsDePasseVisibles() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'" (click)="motsDePasseVisibles.set(!motsDePasseVisibles())">
+					<app-icone [nom]="motsDePasseVisibles() ? 'oeil-barre' : 'oeil'" [taille]="18" />
+				</button>
+			</div>
+					@if (formulaireMotDePasse.controls.confirmation.touched && formulaireMotDePasse.hasError('correspondance')) {
+						<span class="erreur-champ">Les mots de passe ne correspondent pas.</span>
+					}
+
+					@if (erreurMotDePasse()) {
+						<p class="message-erreur"><app-icone nom="alerte" [taille]="18" />{{ erreurMotDePasse() }}</p>
+					}
+					<button type="submit" class="btn btn-secondaire envoyer" [disabled]="enCours() === 'mot-de-passe'">Modifier le mot de passe</button>
+				</form>
+			</section>
+		</div>
+
+		<button type="button" class="btn btn-fantome deconnexion" (click)="deconnecter()"><app-icone nom="deconnexion" [taille]="18" />Se déconnecter</button>
+	} @else {
+		<app-chargement [plein]="true" texte="Chargement de votre compte…" />
+	}
+</div>

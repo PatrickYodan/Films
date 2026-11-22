@@ -1,0 +1,23 @@
+<a class="carte" [routerLink]="['/film', film().slug]">
+	<div class="affiche">
+		@if (film().afficheUrl) {
+			<img [src]="film().afficheUrl" alt="" loading="lazy" [class.chargee]="afficheChargee()" (load)="afficheChargee.set(true)" />
+		} @else {
+			<span class="affiche-vide">
+				<app-icone nom="film" [taille]="26" />
+				<span>{{ film().titre }}</span>
+			</span>
+		}
+		<div class="badges">
+			@if (film().exclusivite) {
+				<span class="badge badge-plein">Exclusivité</span>
+			}
+			@if (film().gratuit) {
+				<span class="badge badge-verre">Gratuit</span>
+			}
+		</div>
+		<span class="lecture" aria-hidden="true"><app-icone nom="lecture" [taille]="20" [epaisseur]="2" /></span>
+	</div>
+	<div class="titre">{{ film().titre }}</div>
+	<div class="meta">{{ meta() }}</div>
+</a>
